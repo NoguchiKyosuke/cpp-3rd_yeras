@@ -1,4 +1,7 @@
+#include <math.h>
 #include "Circle.h"
+
+#define M_PI 3.14159265358979323846
 
 Circle::Circle () { // 引数を指定しない構築子 
     x = y = 0; rad = 10;
@@ -28,12 +31,12 @@ int Circle::getRadius () {
 
 void Circle::draw (svg* svgObj, int N) {
     this->N = N;
-    this->x = 10;
-    this->y = 10;
+    this->x = 100;
+    this->y = 100;
     this->rad = 10;
     for (int i = 0; i < N; i++){
         svgObj->drawCircle(x, y, rad);
-        x += 20;
-        y += 20;
+        x += cos(2 * M_PI /N * i) * 100;
+        y -= sin(2 * M_PI /N * i) * 100;
     }
 }
