@@ -25,18 +25,16 @@ void Circle::getPosition (int xy[]) {
     xy[1] = y;
 }
 
-int Circle::getRadius () {
-    return rad;
+void Circle::getRadius () {
+    this->rad = sqrt(x*x + y*y - 2*x*y*cos(2*M_PI/N))/2;
 }
 
 void Circle::draw (svg* svgObj, int N) {
     this->N = N;
-    this->x = 100;
-    this->y = 100;
-    this->rad = 10;
+    this->getRadius();
     for (int i = 0; i < N; i++){
-        svgObj->drawCircle(x, y, rad);
-        x += cos(2 * M_PI /N * i) * 100;
-        y -= sin(2 * M_PI /N * i) * 100;
+        this->x = sin(i * 2 * M_PI /N) * 100 + 200;
+        this->y = cos(i * 2 * M_PI /N) * 100 + 200;
+        svgObj->drawCircle(this->x, this->y, this->rad);
     }
 }

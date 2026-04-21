@@ -14,6 +14,6 @@ public:
     void setPosition (int x, int y);
     void setRadius (int rad);
     void getPosition (int xy[]); // 追加。配列pに座標を代入する。
-    int getRadius ();
+    void getRadius ();
     void draw (svg* svgObj, int N);
 };
