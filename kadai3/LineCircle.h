@@ -13,4 +13,6 @@ public:
     void draw (svg* svgObj); // Circle クラスの draw () を上書き（オーバーライド）する
     void setColor (std::string c); // 色の設定
     void setWidth (int w); // 線の太さの設定
+    void setPosition (int x, int y); // 描画位置の設定(オーバーライド)
+    void setRadius (int N); // 半径の設定(オーバーライド)
 };

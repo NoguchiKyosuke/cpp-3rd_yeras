@@ -1,4 +1,7 @@
+#include <math.h>
 #include "LineCircle.h"
+
+#define M_PI 3.14159265358979323846
 
 LineCircle::LineCircle () : Circle () { // 構築子
     color = "black";
@@ -20,4 +23,14 @@ void LineCircle::setColor (std::string c) { // 色の設定
 
 void LineCircle::setWidth (int w) {
     width = w;
+}
+
+void LineCircle::setPosition (int x, int y) { // 描画位置の設定(オーバーライド)
+    this->x = x + 100;
+    this->y = y + 100;
+}
+
+void LineCircle::setRadius (int N) { // 半径の設定(オーバーライド)
+    this->N = N;
+    this->rad = sqrt(100*100 + 100*100) - sqrt(100*100 + 100*100 - 2*100*100*cos(2*M_PI/N));
 }

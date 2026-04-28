@@ -29,10 +29,14 @@ int main() {
     linecircle[1].setColor(linecolor);
     linecircle[0].setWidth(width);
     linecircle[1].setWidth(width);
+    linecircle[0].setRadius(N);
+    linecircle[1].setRadius(1);
 
     svgObj[0] = new svg();
 
     svgObj[0]->open("circle.html", 640, 400); // ファイルを開く
     colorcircle.draw(svgObj[0], N); // 円の描画（svgObj のポインタを渡す）
+    linecircle[0].draw(svgObj[0]); // 輪郭の描画（svgObj のポインタを渡す）
+    linecircle[1].draw(svgObj[0]); // 輪郭の描画（svgObj のポインタを渡す）
     svgObj[0]->close(); // ファイルを閉じる
 }
