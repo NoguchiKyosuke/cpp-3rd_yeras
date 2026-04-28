@@ -9,21 +9,15 @@ int main(int args, char* argv[]) {
     svg *svgObj[1]; // SVGドキュメントを生成するオブジェクト
     ColorCircle *colorcircle; // 円のオブジェクト
     LineCircle *linecircle[2]; // 円のオブジェクト
-    int posX = 100, posY = 100, width = 10, N = 4; // 円の描画位置
+    int posX = 100, posY = 100, width, N; // 円の描画位置
 
     std::string color, linecolor; // 円の色
-
     N = atoi(argv[1]); // 円の個数
-    std::cout << N << std::endl;
-
     color = argv[2]; // 円の色
-
     linecolor = argv[3]; // 輪郭の色
-
     width = atoi(argv[4]); // 輪郭の太さ
 
     colorcircle = new ColorCircle();
-
     linecircle[0] = new LineCircle();
     linecircle[1] = new LineCircle();
 
