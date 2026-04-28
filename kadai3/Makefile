@@ -1,5 +1,5 @@
 PROGRAM = main
-OBJS = svg.o kadai2.o main.o 
+OBJS = svg.o Circle.o ColorCircle.o main.o LineCircle.o
 
 CXX = g++
 CFLAGS = -Wall -O2 -std=c++11
