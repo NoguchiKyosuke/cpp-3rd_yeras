@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>演算子のオーバーロード</title>
+<link rel="stylesheet" href="common.css" type="text/css" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+<div id="main">
+
+<h1>演算子のオーバーロード</h1>
+<p>
+C＋＋特有の機能として、演算子（+, -, *, /, % 等）に対して、新たな機能を割り付けることができる。</p>
+<p>
+例：二次元座標の点を表すクラス Point  を以下の様に定義する。
+</p>
+<pre class="SourceCode">
+<code>class Point {
+private:
+    int x, y;
+public:
+    Point (int ix, int iy) { x = ix; y = iy; }
+    void plus (int px, int py) { x = x + px; y = y + py; }
+    void minus (Point& mp) { x = x - mp.x; y = y - mp.y; } // 高速化のために引数は参照で渡す
+    <b class="innerCaution">friend</b> int dot (Point& a, Point& b) { return (a.x * b.x + a.y * b.y); } // friend 関数による内積の計算
+};</code>
+</pre>
+
+<pre class="SourceCode">
+<code>#include &lt;iostream&gt;
+#include "Point.h"
+
+int main () {
+    Point p0 (1, 2);
+    p0.plus (2, 3); // p0 の値が (3,5) になる。
+    Point p1 (3, 3);
+    p1.minus (p0); // p1 の値が (0, -2) になる。
+    int d = dot (p0, p1); // -10 の値が d に代入される
+    std::cout &lt;&lt; "d = " &lt;&lt; d &lt;&lt; std::endl;
+}</code>
+</pre>
+これらに対して、以下の定義を追加する。
+<pre class="SourceCode">
+<code>class Point {
+… 同様の記述…
+    Point operator + (Point& p) { return Point (this->x + p.x, this->y + p.y); } // plus の演算子化
+    friend int operator * (Point& a, Point& b) { return (a.x * b.x + a.y * b.y); } // dot の演算子化
+    // … 他にも-,/,&lt;,=,% 等、様々な演算子の定義が可能
+};</code>
+</pre>
+
+<pre class="SourceCode">
+<code>#include &lt;iostream&gt;
+#include "Point.h"
+
+int main () {
+    Point p0 (1,2);
+    Point p1 (3,4);
+    Point p2 = p0 + p1; // p2 == (4, 6)
+    int d = p2 * p1; // d == 36
+    std::cout &lt;&lt; "d = " &lt;&lt; d &lt;&lt; std::endl;
+}</code>
+</pre>
+<p>
+つまり、演算子を関数名の様に扱い、クラスのメンバ関数と同様にオーバーロードさせる機能が備わっている。</p>
+<p>演算子はクラスのオブジェクトに対して呼び出されるので、変数がオブジェクトのポインタとして宣言されている場合には、注意を要する。</p>
+<pre class="SourceCode">
+<code>int main () {
+    Point *p0 = new Point(1,2);
+    Point *p1 = new Point(3,4);
+    Point p2 = p0 + p1; // コンパイル時エラーが出力される！
+    Point p2 = *p0 + *p1; // *p0 と *p1 はオブジェクトなので、正しい呼び出し方（エラー無し） 
+}
+</code></pre>
+
+
+<h3>演算子における const 引数の利用</h3>
+上述の、演算子をオーバーロードした関数
+<pre class="SourceCode"><code>friend int operator * (Point&amp; a, Point&amp; b) { return a.x * b.x + a.y * b.y; }</code>
+</pre>
+は、引数 a と b を参照渡しで受け取っているが、<strong style="color:#F00">この場合は a と b の変数の内容を書き変える事は無い</strong>ので、
+そのことを明確化するために、以下の様に記述できる。
+<pre class="SourceCode">
+<code>friend int operator * (<b class="innerCaution">const</b> Point&amp; a, <b class="innerCaution">const</b> Point&amp; b) { return a.x * b.x + a.y * b.y; }</code>
+</pre>
+この宣言により、演算子「*」でクラス変数 a と b の値は変更できなくなる。同様に、ポインタ変数の前に const を付けると、ポインタの値は変更できなくなる。
+<pre class="SourceCode">
+<code>friend int operator * (<b class="innerCaution">const</b> Point *a, <b class="innerCaution">const</b> Point *b) { return a->x * b->x + a->y * b->y; }</code>
+</pre>
+さらには、演算子全体に対して const 宣言すると、
+<pre class="SourceCode">
+<code>friend int operator * (Point &amp;a, Point &amp;b) <b class="innerCaution">const</b> { return a.x * b.x + a.y * b.y; }</code>
+</pre>
+演算子内で使用されている全ての変数（a, b）の値の更新を抑止できる。
+<br><br>
+
+<h3>ポイント（演算子）</h3>
+<ul class="Point">
+<li>演算子のオーバーロードは、メソッドの特殊な記述法</li>
+<li>単項演算子と二項（三項）演算子は、記述方法が異なる</li>
+<li>あらゆる演算子をオーバーロードできるが、使用不可の演算子も存在する</li>
+<li>計算の高速化のために、参照渡しを多用する</li>
+<li>値の誤った更新による副作用を避けるために、const 修飾子を適切に使用する</li>
+<li>代入演算子と、コピーコンストラクタ（構築子）との違いを知っておく</li>
+<li>自身の変数を参照しない計算は、 friend 関数や static 関数として設計する</li>
+</ul>
+
+<h2>Exercise (No.7)</h2>
+<div class="Exercise">
+<p>Introduce operators for the Population class of the last exercise, as follows:</p>
+<ul>
+    <li>A % B (Binary operator)<br>
+    Replace the values of <code>vector&lt;int&gt; values</code> of the Population class A, with the ratio of the corresponding values of object B of the same class. That is to say, values in A is replaced with 50 when it is a half of the corresponding value of B.</li>
+    <li>N = !A (Unary operator)<br>
+    Return the index of the maximum of <code>vector&lt;int&gt; values</code> in the Population A</li>
+    <li>L = A ^ n (Binary operator)<br>
+    Return the n-th label of <code>vector&lt;string&gt; labels</code> in a Population object </li>
+</ul>
+<p>
+Using these operators, implement the program that read the data of working populations for Aichi pref. (Aichi.txt) and nationwide (Zenkoku.txt), and output the working type that has the maximum ratio of the Aichi pref. against the nationwide.
+</p>
+
+<u>Example of a main function</u>
+<pre class=“SourceCode”><code>#include &lt;iostream&gt;
+#include "Population.h"
+
+int main() {
+    Population popA, popZ;
+    popA.read(“./Aichi.txt");
+    popZ.read(“./Zenkoku.txt");
+    popA % popZ;
+    int maxN = ! popA;
+    std::string maxLabel = popA ^ maxN;
+    std::cout &lt;&lt; maxLabel &lt;&lt; std::endl;
+}
+</code></pre>
+</div>
+
+<h2>提出課題 (その7)</h2>
+<div class="Exercise">
+<p>前回の課題で作成した Population の数値データに対して、以下の演算子を導入する。 </p>
+<ul>
+    <li>二項演算子 A % B <br>
+    Population クラスのオブジェクト A の vector&lt;int&gt; データ (values) の、同クラスのオブジェクト B の対応する値に対する割合をパーセント換算した値（すなわち、A での値が B の値の半分であれば 50 となる）で置換する</li>
+    <li>単項演算子 N = !A <br>
+    Population クラスのオブジェクト A の vector&lt;int&gt; データ (values) 中で最大値のインデックス（その値が格納されている配列の順番）を整数 N として返す</li>
+    <li>二項演算子 L = A ^ n <br>
+    Population クラスのオブジェクト A の vector&lt;string&gt; データ (labels)  n 番目のラベル L を返す</li>
+</ul>
+<p>
+以上の演算子を用いて、就業人口の業種別構成表を愛知県（Aichi.txt）と全国（Zenkoku.txt）のデータで読み込み、愛知県の全国に対する就業人口の割合が最大の業種名を出力するプログラムを作成する。
+</p>
+
+<u>main 関数の構成例</u>
+<pre class=“SourceCode”><code>#include &lt;iostream&gt;
+#include "Population.h"
+
+int main() {
+    Population popA, popZ;
+    popA.read(“./Aichi.txt");
+    popZ.read(“./Zenkoku.txt");
+    popA % popZ;
+    int maxN = ! popA;
+    std::string maxLabel = popA ^ maxN;
+    std::cout &lt;&lt; maxLabel &lt;&lt; std::endl;
+}
+</code></pre>
+</div>
+<br>
+<p class="Caution">
+注：整数同士の除算を計算する場合は、個々の数値を (float) でキャストしてからでないと、桁落ちが生じる。</p>
+    <ul>
+        <li>int N0 = 100.0 * 10 / 20; // N0 は 0 となる</li>
+        <li>int N1 = 100.0 * (float) (10 / 20); // N1 は 0 となる</li>
+        <li>int N2 = 100.0 * (float) 10 / (float) 20; // N2 は 50 となる</li>
+    </ul>
+    
+</div>
+</body>
+</html>

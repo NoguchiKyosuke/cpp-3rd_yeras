@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>テンプレートと例外処理</title>
+<link rel="stylesheet" href="common.css" type="text/css" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+<div id="main">
+
+<h1>テンプレートと例外処理</h1>
+
+<h2>標準テンプレート</h2>
+<p>
+標準テンプレートライブラリ(STL : Standard Template Library) には、頻繁に用いられる標準的なデータ構造や、&lt;algorithm&gt;ヘッダで定義されている各種データ処理が提供されているので、必要に応じて用いる事でプログラムの保守性と安定性が向上し、開発時間も短縮化できる。<br>
+ただし、汎用的なデータ構造や処理方法を用いるのが困難な場合には、テンプレートを無理に用いるのは避けて、共通部分をまとめた基底クラスの継承を適切に用いる方が良い。<br />
+<i>テンプレートに関するより詳細な説明に関しては、例えば<a href="http://yukki99.studio-web.net/stage/cpp_1-10.html">こちら</a>を参照の事。</i></p>
+
+<h3>ベクトル（リスト）クラスの使用法</h3>
+<p>１次元の並びを動的に確保するにはリスト構造を用いた方が効率的な場合がある。
+Ｃ＋＋言語では標準テンプレートライブラリが利用でき、リスト構造を扱うためのデータクラス std::vector<> がある。</p>
+<u>使用例</u>
+<pre class="SourceCode"><code>#include &lt;vector&gt;
+#include "LineCircle.h"
+
+int main () {
+    std::vector&lt;LineCircle *&gt; circles;
+    for (int i = 0; i &lt; 5; i++) {
+        circles.push_back (new LineCircle ()); // リストデータの末尾に、LineCircleクラスの実体を追加する	
+}
+</code></pre>				
+<p>
+ここで、vector の先頭に付けられた std:: は、STL で実装されていることを示す名前空間を示し、&lt; &gt; 内の
+LineCircle * は、このリスト構造の各要素に格納されるデータの方が LineCircle クラスへのアドレスであることを宣言している。</p>
+<p>このように、抽象化されたデータが実際に扱う型を、データの生成時に指定できるクラスの宣言方法を【テンプレート化】と呼ぶ。
+例えば、浮動小数点の値をリスト構造で保持したい場合には、
+<pre class="SourceCode"><code>#include &lt;vector&gt;
+int main () {
+    std::vector&lt;float&gt; myFloatList;
+    for (int i = 0; i &lt; 10; i++) {
+        myFloatList.push_back ((float) i);
+    }
+}
+</code></pre>
+等と記述すれば良い。vector クラスで使用できる他のメンバ関数に関しては、例えば
+<a href="http://ppp-lab.sakura.ne.jp/cpp/library/002.html">＜こちら＞</a>を参照されたい。<br>
+注： std:: という名前空間の指定は、ファイルの冒頭部で using namespace std; と宣言する事で省略が可能である。<br>
+    また、vector クラスには演算子 [ ] が実装されており、配列の様な記述が可能である。
+<pre class="SourceCode"><code>using namespace std;
+int main () {
+    vector&lt;float&gt; myFloatList;
+    myFloatList[0] = 0; myFloatList[1] = 1;
+    for (int i=2; i&lt;=10; i++) {
+        myFloatList[i] = myFloatList[i-1] + myFloatList[i-2]; // フィボナッチ数
+    }
+    ...
+</code></pre>
+
+<h3>イテレータ（反復子）を用いた繰返し処理の記述</h3>
+<p>STLのリスト構造クラスにはイテレータ（反復子）と呼ばれる、要素集合の個々の要素を参照するためのクラスが用意されており、
+これは配列の要素を指すポインタを抽象化したものと考えられる。</p>
+<pre class="SourceCode"><code>std::vector&lt;float&gt::iterator it = myFloatList.begin();  // イテレータのインスタンス化
+    while( it != myFloatList.end() )  { // 末尾要素まで
+        std::cout &lt;&lt; *it &lt;&lt; std::endl;  // *演算子で間接参照（0, 1, 2, ...の値が、順次参照される）
+        ++it;                 // イテレータを１つ進める
+    }
+</code></pre>
+<p>この様に、イテレータは繰り返し処理を分かり易く記述するのに用いられる。</p>
+
+<br><br>
+
+<h2>テンプレートクラスの構成法</h2>
+<p>テンプレートクラスは自分で作成する事もできる。
+作成方法は、抽象化するデータのクラスを変数（例えば T とする）として扱い、その変数を用いて
+メンバ変数やメンバ関数で用いられるクラスを記述する。<br>
+また、重要な点として、<b class="innerCaution">テンプレートクラスは必ずヘッダファイル内で実装する</b>
+というルールがある。すなわち、<b>.cpp ファイルを作成して個別にコンパイルすると、リンク時にエラーとなる</b>。
+</p>
+<h3>テンプレートクラスの生成例</h3>
+<p>ヘッダファイルでのクラス宣言の冒頭部に
+<b class="innerCaution">template &lt;class T&gt;</b>（抽象化するクラスの変数をTとする場合）を
+記述する必要がある。下記の例は、環状に円を配置するクラス RingCircles に対して、
+円のクラスを抽象化変数 T とするテンプレートクラスの構築例である。</p>
+<u>ヘッダファイル（RingCircles.h）</u>
+<pre class="SourceCode"><code><b class="innerCaution">template &lt;class T&gt;</b> class RingCircles {
+    private:
+        std::vector&lt;T *&gt; circles; // 環状に配置する円の要素
+        int x, y; // この円環群の相対的位置座標
+
+    public:
+        RingCircles (){}
+
+        void setCircles(int n) {
+            for (int i = 0; i &lt; n; i++) {
+	         …
+	         circles.push_back(new T (…
+            }
+	      …
+        } // 構築子：配置する円の個数が引数
+        
+        void setPosition(int x, int y) { // 相対的位置座標の設定
+            this-&gt;x = x; this-&gt;y = y;
+            for (int i = 0; i &lt; circles.size(); i++) {
+                circles[i]-&gt;setPosition(…
+            }
+        }
+        
+        void draw(svg *svgObj) {
+            for (int i = 0; i &lt; circles.size(); i++) {
+                circles[i]-&gt;draw(…
+            } 
+        } // 描画関数
+    };
+</code></pre>
+<p class="Caution">
+テンプレートクラス内では、ベクター std::vector&lt;T *&gt; クラスのイテレータ（反復子）は使用できないので、
+コンパイルエラーとなる！
+</p>
+<u class="Caution">エラーとなる記述例</u>
+<pre class="SourceCode"><code><b class="innerCaution">std::vector&lt;T *&gt::iterator it = circles.begin();</b>
+</code></pre>
+
+<h3>ポイント（テンプレート）</h3>
+<ul class="Point">
+<li>標準的なデータ構造を扱う関数は、テンプレートクラスとして実装されている</li>
+<li>テンプレートクラスでは、データの各要素のクラスを指定できる</li>
+<li>テンプレートクラスを独自に設計することができる</li>
+<li>データの種類に依存しない、汎用的な機能を実装する際には、テンプレートクラスとして設計することを試みる</li>
+</ul>
+
+<h2>例外処理（try 〜 catch 〜 throw）</h2>
+<p>Ｃ＋＋や Java では、プログラム実行時のエラー解析を容易にするために、例外処理(Exception)の機能が備わっている。</p>
+<p>その使用方法は、エラーや例外が発生する可能性のあるコード部分を try {...} で囲み、その中で throw 文によって投げられた例外メッセージの
+値を catch 文が受け取って、対応する処理を続く {...} の中に埋め込む。</p>
+<h3>例外処理文の構造</h3>
+<pre class="SourceCode">
+try {
+    // 例外を発生するプログラムコード（throw によって例外メッセージを送信する）
+} catch ( 例外メッセージ ) {
+    // 例外の種類に依存する処理を実行するプログラムコード
+}
+</pre>
+
+<p>
+実際には、標準ライブラリーで用意された例外クラス（std::exception）を継承して独自の例外クラスを設計し、そのクラスの
+メッセージを受け取るように実装される。詳細に関しては、<a href="http://www.02.246.ne.jp/~torutk/cxx/exception/programming.html">＜こちら＞</a>を参考にする事。 </p>
+
+<h3>Circle に対する例外処理クラスの設計</h3>
+<p>ここでは、Circle クラスの属性値に不適切な値を代入した場合に呼び出される例外処理用のクラス CircleException を設計する。</p>
+<u>CircleException ヘッダファイル実装例</u>
+<pre class="SourceCode"><code>#pragma once
+
+#include &lt;exception&gt;
+#include &lt;string&gt;
+
+class CircleException : public std::exception {
+private:
+    std::string message; // エラーメッセージ
+    
+public:
+    CircleException(const std::string&amp; msg) : message(msg) {};
+    virtual ~CircleException() {};
+    void printStackTrace() const {
+        std::cerr &lt;&lt; "Error in generating Circle : " &lt;&lt; message &lt;&lt; std::endl;
+    }
+}
+</code></pre>
+<u>例外処理の呼び出し例（ヘッダファイル）</u>
+<pre class="SourceCode"><code>#include "CircleException.h"
+
+class Circle {
+protected:
+    int x, y;
+    int rad;
+
+public:
+    Circle ();
+    Circle (int cx, int cy, int r = 10);
+    ~Circle () {}
+    void setPosition (int x, int y);
+    void setRadius (int rad);
+    ...
+</code></pre>
+
+<u>例外処理の呼び出し例（ソースファイル）</u>
+<pre class="SourceCode"><code>void Circle::setPosition (int x, int y) {
+    if (x &lt; 0 || y &lt; 0)
+        throw CircleException("Corrdinate of position is out of range!");
+    else
+        this-&gt;x = x; this-&gt;y = y;
+}
+
+void Circle::setRadius (int rad) {
+    if (rad &lt;= 0)
+        throw CircleException("Radius is less than zero!");
+    else
+        this-&gt;rad = rad;
+}
+</code></pre>
+
+<u>プログラム中での呼び出し</u>
+<pre class="SourceCode"><code>
+    Circle circle();
+    ...
+    try {
+        circle.setPosition(x, y); // x か y が負の値であれば CircleException をthrow
+        circle.setRadius (r); // r が0以下であれば CircleException をthrow
+    } catch (CircleException ce) {
+        ce.printStackTrace(); // エラーメッセージの表示
+    }
+</code></pre>
+
+<h2>Exercise (No.5)</h2>
+<div class="Exercise">
+<p>
+    Extend the program of the last exercise as follows:</p>
+    <ul>
+        <li>Implement RingCircles class for arranging N circles attaching each other by designing it as template class so that the class of circles becomes changeable.</li>
+        <li>Draw the three kinds of circles: (ColorCircle, LineCircle, DoubleCircle) by giving the total number as
+        <pre><code>int main(int argc, char *argv[]) {
+    int n = atoi(argv[1]); // total number of circles
+    svg svgObj; // object for generating a SVG document
+    
+    RingCircles&lt;ColorCircle&gt; cc; // synthesis of ColorCircle class
+    cc.setCircles(n);
+    cc.setPosition(x, y); // set the Position of a ring
+    RingCircles&lt;LineCircle&gt; lc; // synthesis of LineCircle class
+    lc.setCircles(n);
+    lc.setPosition(x+offsetX, y); // set the Position of a ring
+    // ... omitted below
+    
+    svgObj.open("RingCircles.html", 1280, 400); // Open the file
+    cc.draw(&svgObj); // draw a ring (ColorCircle)
+    lc.draw(&svgObj); // draw a ring (LineCircle)
+    // ... omitted below
+    
+    svgObj.close(); // close the file
+}</code></pre>
+        </li>
+    <li>Total number of arranged circles is given in launching
+    <pre class="CommandLine">% ./a.out 12</pre>
+    </li>
+    <li>Implement exception handler against the inputted number of circles below 4 or above 100, where the class for handling exception is implemented as RingCirclesException that outputs error messages as:
+    <br>
+    Error in RingCircles ... the number of circles is too small! <br>
+    for below 4, and<br>
+    Error in RingCircles ... the number of circles is too large! <br>
+    for above 100.</li>
+    <li>Color of circles are not given, and the default values are used.</li>
+    </ul>
+<br>
+<img src="./tripleRings.jpg"><br>
+<u>Example of execution</u>
+</div>
+
+<h2>提出課題 (その5)</h2>
+<div class="Exercise">
+<p>前回の課題で作成した円を環状に配置するプログラムを、以下の様に拡張する。</p>
+<ul>
+    <li>与えられた円の要素を、互いに内接する様に環状にＮ個配置する機能を RingCircles クラスとして作成する。ただし、円の要素の型を変更できるテンプレートクラスとして設計する。
+    </li>
+    <li>以下の様に、与えられた個数の円を３種類(ColorCircle, LineCircle, DoubleCircle)描画する。      
+<pre><code>int main(int argc, char *argv[]) {
+    int n = atoi(argv[1]); // 円の個数
+    svg svgObj; // SVGドキュメントを生成するオブジェクト
+    
+    RingCircles&lt;ColorCircle&gt; cc; // 円環(ColorCircle)クラスの生成
+    cc.setCircles(n);
+    cc.setPosition(x, y); // 円環の位置の設定
+    RingCircles&lt;LineCircle&gt; lc; // 円環(LineCircle)クラスの生成
+    lc.setCircles(n);
+    lc.setPosition(x+offsetX, y); // 円環の位置の設定
+    // ... 以下省略
+    
+    svgObj.open("RingCircles.html", 1280, 400); // ファイルを開く
+    cc.draw(&svgObj); // 円環(ColorCircle)の描画
+    lc.draw(&svgObj); // 円環(LineCircle)の描画
+
+    // ... 以下省略
+    svgObj.close(); // ファイルを閉じる
+}</code></pre>
+   </li>
+    <li>配置する円の個数は実行時に与えるものとする
+    <pre class="CommandLine">% ./a.out 12</pre>
+    </li>
+    <li>円の配置個数として４個未満または100個を超える個数が指定された場合は、エラーとして例外処理する。<br>
+    ただし、例外処理用のクラス RingCirclesException を作成して使用して、<br>
+    ４個未満の場合は<br>
+    Error in RingCircles ... the number of circles is too small! <br>
+    100個を超える場合は<br>
+    Error in RingCircles ... the number of circles is too large! <br>
+    のメッセージを出力して処理を終了する。</li>
+    <li>円の色は特に指定せず、デフォルトの値を適当に設定する。</li>
+</ul>
+<br>
+<img src="./tripleRings.jpg"><br>
+<u>円環群生成例</u>
+</div>
+
+</div>
+</body>
+</html>

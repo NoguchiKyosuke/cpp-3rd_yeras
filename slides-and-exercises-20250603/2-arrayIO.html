@@ -1,0 +1,287 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>配列と入出力</title>
+<link rel="stylesheet" href="common.css" type="text/css" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+<div id="main">
+
+<h1>配列と入出力</h1>
+
+<h2>クラス配列の扱い方</h2>
+
+<h3>基本となる型の配列の動的な領域確保</h3>
+
+<u>Ｃ言語：</u>
+<pre class="SourceCode">
+<code>#define ARRAY_SIZE  10
+
+int *array = (int *) malloc (sizeof (int) * ARRAY_SIZE); // 動的な領域確保
+for (i = 0; i &lt; ARRAY_SIZE; i++) {
+    array[i] = i;
+    以下、省略…
+</code></pre>
+
+<u>C＋＋言語：</u>
+<pre class="SourceCode">
+<code>int *array = new int [ARRAY_SIZE]; // 動的な領域確保
+for (i = 0; i &lt; ARRAY_SIZE; i++) {
+    array[i] = i;
+    以下、省略…
+</code></pre>
+他の型（float, double, char, long, unsigned int etc.）に関しても同様である。
+
+<h3>構造体／クラス配列の生成法</h3>
+<u>Ｃ言語（構造体）：</u>
+<pre class="SourceCode">
+<code>#define ARRAY_SIZE  10
+
+struct Circle *scirc = (struct Circle *) malloc (sizeof (struct Circle) * ARRAY_SIZE); // 動的確保
+for (i = 0; i &lt; ARRAY_SIZE; i++) {
+    scirc[i].x = i;
+    以下、省略…
+</code></pre>
+<u>Ｃ++言語（クラス）：</u>
+<pre class="SourceCode">
+<code>Circle **circ = new Circle* [ARRAY_SIZE];  // 動的確保。空の配列の領域を確保。２重ポインタで受け取る。
+for (i = 0; i &lt; ARRAY_SIZE; i++) {
+    circ[i] = new Circle (); // クラスのインスタンスの領域を確保して配列に代入
+    circ[i]->x = i; // ポインタなので、-> で参照する！
+    以下、省略…
+</code></pre>
+<p>クラス Circle に
+<span class="innerCaution">デフォルト構築子（引数を持たない構築子）が定義されている場合</span>
+には、以下の様な配列の生成法が可能となる。</p>
+
+<pre class="SourceCode">
+<code>Circle circ[ARRAY_SIZE];  // 静的確保。ポインタではない！
+// 動的に確保する場合は、Circle *circ = new Circle [ARRAY_SIZE];
+for (i = 0; i &lt; ARRAY_SIZE; i++) {
+    circ[i].x = i;
+    以下、省略…
+</code></pre>
+
+<h3>多重配列</h3>
+<p>標準的な型変数の場合：</p>
+<pre class="SourceCode"><code>#define ROW_SIZE      3
+#defien COLUMN_SIZE   4
+
+// <span class="innerCaution">× float **m_array = new float [ROW_SIZE][COLUMN_SIZE]; これはエラー！ newは複数の [ ] を扱えない</span>
+float **m_array = new float* [ROW_SIZE]; // ここで、Ｃ言語の動的確保と同様に、ポインタの配列を確保
+
+for (i = 0; i &lt; ROW_SIZE; i++) {
+    m_array[i] = new float [COLUMN_SIZE]; // １次元分の配列領域を確保
+    for (k = 0; k &lt; COLUMN_SIZE; k++) {
+        m_array[i][k] = i + k;
+        以下、省略…
+</code>
+</pre>
+
+<p>クラスの場合：</p>
+<pre class="SourceCode">
+<code>Circle ***circ = new Circle** [ROW_SIZE];
+for (int i = 0; i &lt; ROW_SIZE; i++) {
+    circ[i] = new Circle* [COLUMN_SIZE];
+    for (int j = 0; j &lt; COLUMN_SIZE; j++)
+        circ[i][j] = new Circle (i, j, 10);
+}</code>
+</pre>
+
+<h3>ポイント：（クラス配列の領域確保）</h3>
+<ul class="Point">
+<li>配列の動的な領域確保は、C＋＋言語では malloc 関数は用いずに、new 演算子を用いる。</li>
+<li>配列の静的な確保は、クラス以外の変数であればC言語と同様に可能である。</li>
+<pre>
+◯   int data[10]; 
+◯   struct Circle circ[ARRAY_SIZE];
+</pre>
+<li>クラス配列の静的な生成には、引数を持たないデフォルト構築子を定義しておく必要がある。</li>
+<li>クラス配列の動的な生成には、２重ポインタとして宣言し、各要素に new で生成したインスタンスを代入する。</li>
+<!-- li>クラスの２次元配列は、３重ポインタを用いる。</li -->
+</ul>
+
+<h2>標準関数</h2>
+<p>
+    ここでは、文字列と標準入出力およびファイルの入出力を扱う標準関数の扱い方を学ぶ。</p>
+    <u>標準関数の名称と機能</u><br>
+    <table border="1pc">
+        <tr>
+            <th>名称</th><th>機能</th><th>説明文書へのリンク</th>
+        </tr>
+        <tr>
+            <td>std::string</td><td>文字列の操作</td>
+            <td>
+            <a href="http://ppp-lab.sakura.ne.jp/ProgrammingPlacePlus/cpp/library/002.html">詳細な解説</a></td>
+        </tr>
+       <tr>
+            <td>std::cin</td><td>標準入力（キーボード）からの入力</td>
+            <td>
+            <a href="http://ppp-lab.sakura.ne.jp/ProgrammingPlacePlus/cpp/language/005.html#std_input_stream">詳細な解説</a></td>
+        </tr>
+       <tr>
+            <td>std::cout</td><td>標準出力（ディスプレイ）への出力</td>
+            <td><a href="http://ppp-lab.sakura.ne.jp/ProgrammingPlacePlus/cpp/language/005.html#std_output_stream">詳細な解説</a></td>
+        </tr>
+        <tr>
+            <td>std::ofstream</td><td>ファイルへの書き出し</td>
+            <td><a href="http://ppp-lab.sakura.ne.jp/ProgrammingPlacePlus/cpp/language/006.html#output_filestream">詳細な解説</a></td>
+        </tr>
+        <tr>
+            <td>std::ifstream</td><td>ファイルからの読み込み</td>
+            <td><a href="http://ppp-lab.sakura.ne.jp/ProgrammingPlacePlus/cpp/language/006.html#input_filestream">詳細な解説</a></td>
+        </tr>                              
+    </table>
+<br>
+<h3>SVGファイルの生成</h3>
+<p>
+ここでは、クラス Circle の描画結果を可視化するために、 SVG ファイルを生成する。<br>
+SVG (Scalable Vector Graphics）の略語であり、２次元図形をベクター画像として描画するための、
+XMLを基準に設計された形式である。<br>
+クラス Circle の描画結果を SVG ファイルとして生成するクラス svg を、以下のように作成する。
+</p>
+
+<p>
+<u><a href="./sample/svg.h">ヘッダファイル（svg.h）</a></u>
+</p>
+
+<p>
+<u><a href="./sample/svg.cpp">ソースファイル（svg.cpp）</a></u>
+</p>
+
+<p>
+参考：<a href="http://www.tohoho-web.com/ex/svg.html">上記で使用されているSVGの説明</a>
+</p>
+<p class="Caution">
+属性の値は文字列として、クオーテーション（またはダブルクオーテーション）で囲む必要がある。
+</p>
+
+<h3>Circle クラス内でのSVG形式の円描画</h3>
+<u>Circle.cpp でのメンバ関数 draw の変更</u>
+<pre class="SourceCode">
+<code>void Circle::draw (svg* svgObj) { // 円の描画関数（svg オブジェクトのポインタを受け取る）
+    svgObj->drawCircle(x, y, rad); // 中心 (x,y)、半径 r の円の輪郭描画（SVG形式）
+}
+</code></pre>
+<p>
+ただし、Circle.h ファイルの冒頭部分に、
+<pre class="SourceCode">
+<code>#include "svg.h"</code></pre>
+を追加し、
+<pre class="SourceCode"><code>void draw (svg* svgObj); <b class="innerCaution">// 引数はポインタ渡し</b></code></pre>
+のメンバ関数宣言も追加する。
+<br><br>
+<u>Circle 描画の簡単な実行例（mainCicrle.cpp）</u>
+<pre class="SourceCode">
+<code>#include &lt;iostream&gt;
+#include "Circle.h"
+
+int main() {
+    svg svgObj; // SVGドキュメントを生成するオブジェクト
+    Circle circle; // 円のオブジェクト
+    int posX, posY, radius; // 円の描画位置と半径
+    
+    std::cout &lt;&lt; "Input X Coordinate => "; // 画面にメッセージ出力
+    std::cin &gt;&gt; posX; // 円の座標（X）の入力
+    std::cout &lt;&lt; "Input Y Coordinate => ";
+    std::cin &gt;&gt; posY; // 円の座標（Y）の入力
+    std::cout &lt;&lt; "Input Radius => ";
+    std::cin &gt;&gt; radius; // 円の半径の入力
+    
+    circle.setPosition(posX, posY); // 円の描画位置の指定
+    circle.setRadius(radius); // 円の半径の指定
+    
+    svgObj.open("circle.html", 640, 400); // ファイルを開く
+    circle.draw(&amp;svgObj); // 円の描画（svgObj のポインタを渡す）
+    svgObj.close(); // ファイルを閉じる
+}
+</code></pre>
+
+<p>
+生成された SVG ファイルの内容は、ブラウザで開くことによって確認できる。
+</p>
+
+<p class="Caution">
+標準関数のライブラリーを使用する場合には、コンパイル時に <code>-std=c++11</code> のオプションを指定する必要がある。<br>
+<u>コンパイル実行例</u>
+<pre class=“Command”>
+<code>g++ -std=c++11 -c svg.cpp</code>
+</pre>
+</p>
+
+<h3>補足：コピーできないオブジェクト</h3>
+<p>
+上記の <code>circle.draw(&amp;svgObj);</code> は、svgクラスのポインタを引数として渡しているが、これには理由がある。<br>
+仮に、<code>circle.draw(svgObj);</code> としてインスタンスを引数として渡す場合、実際には <b class="innerCaution">そのコピーが関数 <code>circle.draw</code> に渡される</b>。<br>
+しかし、svg クラスのメンバ変数には、コピーが禁止されている <code>std::ofstream ofs;</code> が含まれているので、
+svg のインスタンスもコピーが禁止となるので、<code>circle.draw(svg);</code> のように宣言するとコンパイルエラーとなる。<br>
+ファイル出力のストリーム <code>std::ofstream</code> がコピー禁止なのは、ファイルの書き込みに際して、複数のインスタンスからの競合を避けるためである。<br>
+Ｃ＋＋では、ポインタ変数を引数として用いる代わりに、<b class="innerCaution">参照渡し</b>という方法もある（第６回目の講義で説明する）。
+</p>
+
+<ul class="Point">
+<li>C言語での関数 printf を用いて画面にテキストを出力できるが、C＋＋ではストリーム出力と呼ばれる方法も使用できる。</li>
+   <ul>
+       <li>std::cout &lt;&lt; "Hello !"; により、標準出力（ディスプレイ画面）に文字列 Hello ! が出力される。</li>
+   </ul>
+   <li>標準入力からのストリーム入力は std::cin >> param でキーボード入力した値を変数 param に代入できる。
+   <ul>
+       <li>C言語の scanf では、ポインタ変数 &amp;param を渡す必要があったが、ストリーム入力では変数そのものを指定すれば良い。</li>
+      <li>C言語の入力用関数群もそのまま使用できる。 </li>
+   </ul>
+   </li>
+    <li>ファイルへの出力には std::ofstream クラスのオブジェクトに対して、出力内容（文字列）を &lt;&lt; で繋げていく（Circle のメンバ変数 draw を参照）</li>
+<li>ストリーム入出力を使用する際には、#include &lt;iostream&gt; でヘッダファイルを読み込む必要がある。</li>
+<li>std:: の表記を省略したければ、using namespace std; の記述をヘッダファイルの冒頭に追加する（便利ではあるが、推奨はしない）。</li>
+</ul>
+
+<h2>Exercise (No.2)</h2>
+<div class="Exercise">
+<p>
+Implement the program that draws N circles arraged along a ring while contacting each other as shown in the figures below. The program must include <font color="red">Array of Circle class</font> and the number of circles is given by numerical input of a keyboard with iostream (std::cin).　<br>
+The distances between the center of ring and the centers of each circles are fixed at 100.
+<br>
+<u>Figure : exmaple of execution</u>
+<br><br>
+<img src="case8.jpg" width="240"> <img src="case30.jpg" width="240"> <br>
+For N == 8 For N == 30
+<br>
+</p>
+<p class="innerCaution">
+Trigonometric function such as sin, cos, and sqrt are defined in a mathematical library and
+    its header file therefore should be included as</p>
+<pre class="Caution">
+#include &lt;math.h&gt;
+</pre>
+<p>
+Notice that in SVG, the origin (0,0) of 2D coordinates is located at the upper-left corner of a window, and X and Y axes are oriented to right and down directions, respectively.
+Also, the resolution of the coordinates is usually set by those of pixels, that is, the coordinates spans 1920 x 1080 in a whole window size.
+</p>
+</div>
+
+<h2>提出課題 (その2)</h2>
+<div class="Exercise">
+<p>
+実行後にキーボードで入力した（ただし，iostream の std::cin を使用）整数値Ｎに対して、円環上に互いに接するＮ個の円を描画するプログラムを<font color="red">Circle クラスの配列</font>を用いて作成する。<br>
+ただし、円環全体の中心と周囲に配置される円の中心との距離を100とする。<br>
+<u>プログラム実行例：</u>
+<br><br>
+<img src="case8.jpg" width="240"> <img src="case30.jpg" width="240"> <br>
+円が８個の場合 円が３０個の場合
+<br>
+</p>
+
+<p class="innerCaution">
+三角関数（sin, cos 等）や平方根（sqrt）を使用する場合は、数学関数ライブラリ用のヘッダファイルを以下の様に読み込んでおく。</p>
+<pre class="Caution">
+#include &lt;math.h&gt;
+</pre>
+注：svg では、ウィンドウの向かって左上隅が座標原点(0,0)に取られ、右方向にX座標、下方向にY座標が張られる。また、座標の解像度は指定がない場合は画素の解像度と同じになる（したがって、画面全体では1920 x 1080 の大きさとなる）。
+</div>
+
+</body>
+</html>

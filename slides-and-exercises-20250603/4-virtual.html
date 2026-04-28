@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>仮想関数とポリモーフィズム</title>
+<link rel="stylesheet" href="common.css" type="text/css" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+<div id="main">
+
+<h1>仮想関数とポリモーフィズム</h1>
+<p>
+前節の色付き円 ColorCircle と輪郭線円 LineCircle を同じ配列データとして扱いたい場合は、
+共通の<b class="innerCaution">基本クラス（スーパークラス）</b> Circle の配列として格納できる。
+</p>
+<pre class="SourceCode">
+<code>#define NUM_CIRCLE 10
+   ...
+   
+    Circle *circleGroup [] = new Circle [NUM_CIRCLE];
+    for (i = 0; i &lt; NUM_CIRCLE; i++) {
+        if (i % 2 == 0)  // 偶数の場合は、色付き円
+            circleGroup[i] = new ColorCircle ();
+        else // 奇数の場合は、輪郭線円を描画
+            circleGroup[i] = new LineCircle ();
+        以下、省略…
+</code></pre>
+
+<h3>オーバライドの問題点：</h3>
+<p>生成されたオブジェクトのアドレスは、そのクラスのポインタ変数だけでなく、
+その基本クラスに対するポインタ変数にも代入できる。<br />
+しかし、以下の命令文を考える。</p>
+<pre class="SourceCode">
+   <code>for (i = 0; i &lt; ARRAY_SIZE; i++) {
+        circleGroup[i]->draw (&amp;svgObj);
+        以下、省略…
+</code></pre>
+<p>
+このとき、配列 circleGroup[] の要素は Circle クラスのポインタとして宣言されているので、
+Circle クラスのメンバ関数 draw が呼ばれてしまう。<br/>
+仮に、キャスト演算子を用いて、</p>
+<pre class="SourceCode">
+<code>((ColorCircle *) circleGroup[i])->draw (&amp;svgObj);</code>
+</pre>
+<p>と呼び出せば、オーバーライドされた ColorCircleクラスの draw 関数が呼び出される。</p>
+<p>
+しかし、配列 circleGroup[] の各要素に対して、それが ColorCircle なのか、LineCircle なのかを知る手だてがない！<br />
+例えば、クラス変数に std::string type という識別用のメンバ変数を追加して、</p>
+<pre class="SourceCode">
+<code>if (circleGroup[i]->type == "ColorCircle") // type の値が ColorCircle か？
+    ((ColorCircle *) circleGroup[i])->draw (&amp;svgObj);
+else
+    ((LineCircle *) circleGroup[i])->draw (&amp;svgObj);</code>
+</pre>
+<p>
+とすれば、所望の機能（各サブクラスのオーバーライドされた draw 関数が呼び出される。<br />
+しかし、上記の解決法の問題点は：</p>
+<ul>
+  <li>クラスの識別用の変数 type を用意する必要がある。
+  </li>
+  <li>クラスの数だけ、条件分岐 (if … else if … else ) を記述する必要がある。
+  </li>
+  </ul>
+等の理由により、<u>Circle の派生クラスが増える毎に条件分岐を追加する必要があり、プログラムのメンテナンスが面倒になる</u>。
+<br /> この問題点を解決するためには、Circle のクラスの配列 circleGroup に<b class="innerCaution">実際に格納されている派生クラス</b>の種類に応じて、
+オーバーライドした関数を呼び出す機構が必要となる！<br><br>
+ 
+  <h3>仮想関数の導入</h3>
+    <p>
+    ここで、<b class="innerCaution">仮想関数</b>というメンバ関数の宣言方法を導入する。これは、基本クラスにおいては実体の無い雛形を定義しておき、派生クラスにおいて具体的な処理を記述する。関数の前には、<b class="innerCaution">virtual</b> というキーワードを付ける。</p>
+    <u>Circle.h</u>
+    <pre class="SourceCode">
+<code>class Circle {
+
+省略…
+
+    <b class="innerCaution">virtual</b> void draw (svg*) = 0; // 0を代入すると、純粋仮想関数となる！
+};</code></pre>
+<u>ColorCircle.h（LineCircle も同様…）</u>
+<pre class="SourceCode">
+<code>class ColorCircle : public Circle {
+
+省略…
+
+    <b class="innerCaution">virtual</b> void draw (svg*); // 仮想関数をオーバーライド
+};
+</code></pre>
+
+<h3>確認問題</h3>    
+<p>以下のプログラムで、ColorCircle と LineCircle が交互に生成されて、各々の draw 関数が呼び出されている事を確認せよ。</p>
+<pre class="SourceCode">
+<code>#include "Circle.h"
+#include "ColorCircle.h"
+#include "LineCircle.h"
+
+int main() {
+  Circle *circ; // 基本クラスの変数として宣言
+  svg svgObj;
+  svgObj.open("test.html", 640, 400);
+  for (int i = 0; i &lt; 10; i++) {
+      if ((i % 2) == 0) { // i が偶数の場合
+          circ = new ColorCircle (20*(i+1), 20, 10, "green");
+      }
+      else {// i が奇数の場合
+          circ = new LineCircle (20*(i+1), 20, 10, "red", 3);
+      }
+      circ->draw (&svgObj); // ColorCircle と LineCircle が交互に呼び出される！
+  }
+  svgObj.close();
+}</code>
+</pre>
+
+<p>上記のプログラムは、基本クラスの変数 circ のメンバ関数 draw に対して複数の異なる意味を与える事により、<b class="innerCaution">ポリモーフィズム（Polymorphism：多態性、多相性、多様性）</b>を実現している。</p>
+<p>
+具体的には、仮想関数を使う事により、同じ基本クラスを有する派生クラスを同じ型の変数として扱い、
+その機能（例えば、メンバ関数 draw）の中身を、<u>キャスト演算子で指定しなくても自動的に切り替える事ができる</u>。</p>
+
+<h3>ポイント（仮想関数）：</h3>
+<ul class="Point">
+    <li>ヘッダファイルでの宣言中に virtual というキーワードを用いると、仮想関数となる</li>
+    <ul>
+        <li>基本クラスと派生クラスの両方で virtual と指定する必要がある</li>
+        <li>ソースファイル（.cpp）では、virtual のキーワードは不要である</li>
+    </ul>
+    <li>仮想関数に０を代入したものは純粋仮想関数と呼ばれ、本体を実装が不要となる</li>
+    <ul>
+        <li>純粋仮想関数を含むクラスは、抽象クラスと呼ばれる</li>
+        <li>抽象クラスは、実体（インスタンス）を生成できない</li>
+        <li>純粋仮想関数は作らなくても良い</li>
+    </ul>
+    <li>仮想関数は変数が基本クラスで宣言されていても、派生クラスでの実装が優先的に呼び出される</li>
+    <ul>
+    <li>基本クラスで宣言された変数に、派生クラスのインスタンスを代入できる</li>
+    <li>派生クラスで宣言された変数には、基本クラスのインスタンスは代入できない！</li>
+    </ul>
+    <li>仮想関数は、異なる派生クラスを共通の基本クラスとして一括処理する場合にその威力を発揮する</li>
+</ul>
+
+<h2>Exercise (No.4)</h2>
+<div class="Exercise">
+<p>
+Extends the program of the last week(No.3) as follows:
+</p>
+    <ol>
+       <li>Implement DoubleCircle class that draws additional circle whose radius is decreased by "ratio" percentage and has different color, by inheriting the ColorCircle class.</li>
+        <li>Draw ColorCircles and DoubleCircles alternately arranged along a ring while contacting each other as shown in the figure below.</li>
+        <li>In launching the program, give the number of arranged circles, the colors of ColorCircle and DoubleCircle, and the percentage of down scale for an inner circle of Double Circle
+(0 &lt; ratio &lt; 100) as
+        <pre class="CommandLine"><code>% ./a.out 8 blue red green 50</code></pre>
+        </li>
+        <li>Use <b class="innerCaution">a virtual function</b> for drawing</li>
+    </ol>
+<p class="Caution">
+LineCircles that enclose inner and outer contours are NOT required. We can assume that the number of arranged circles is even number.
+</p>
+<img src="virtualKadai.jpg"><br>
+Result of the above execution 
+</div>
+
+<h2>提出課題 (その4)</h2>
+<div class="Exercise">
+<p>
+    先週の課題（その３）で作成したプログラムを以下の様に拡張する。</p>
+    <ol>
+       <li>色が異なり半径が ratio パーセントだけ小さい円を内部に塗りつぶす円のクラス DoubleCircle を ColorCircle クラスを継承して作成する。</li>
+        <li>円環状に ColorCircle と DoubleCircle を互いに内接しながら交互に配置して描画する（確認問題を参考にする）。</li>
+        <li>プログラムの実行時に内接円の個数と ColorCircle と DoubleCircle の描画色（２種類）、および Double Circle の内部円の縮小パーセント率 (0 &lt; ratio &lt; 100) を指定する。
+        <pre class="CommandLine">
+            % ./a.out 8 blue red green 50
+        </pre>
+        </li>
+        <li>描画には<b class="innerCaution">仮想関数を用いる</b>。</li>
+    </ol>
+<p class="Caution">
+内部と外部の輪郭を囲む LineCircle は、描画しなくて良い。また、配置する円の数は偶数として良い。
+</p>
+<img src="virtualKadai.jpg"><br>
+上記の実行例
+    </div>
+</div>
+</body>
+</html>

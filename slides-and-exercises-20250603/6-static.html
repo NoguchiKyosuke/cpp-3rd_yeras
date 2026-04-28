@@ -1,0 +1,383 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>静的メンバ、参照、const 修飾子</title>
+<link rel="stylesheet" href="common.css" type="text/css" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+<div id="main">
+
+<h2>静的メンバ</h2>
+
+<h3>静的メンバ変数</h3>
+<p>
+ColorCircle クラスの色を指定しなかった場合のデフォルトの色を設定する場合、そのクラスを
+<pre class="SourceCode">
+<code>class ColorCircle : public Circle {
+    protected:
+        string color; // 描画色
+        string <b class="innerCaution">defaultColor = "black"</b>; // デフォルト色
+    public:
+        ColorCircle () : Circle () { color = <b class="innerCaution">defaultColor</b>; }
+        ColorCircle (int cx, int cy, int r) : Circle (cx, cy, r) { color = <b class="innerCaution">defaultColor</b>; }
+        ...</code>
+</pre>
+のように拡張する事が考えられる。しかし、デフォルトの色は ColorCircle クラスの全オブジェクトに対して共通の属性であるとすると、
+この値を各オブジェクトに個別のメンバ変数として持たせておくのは効率が悪い。したがって、	
+<pre class="SourceCode"><code>class ColorCircle : public Circle {
+protected:
+	string color; // 描画色
+public:
+	<b class="innerCaution">static</b> string defaultColor; // 初期化の代入はできなくなる
+    
+	ColorCircle () : Circle () { color = defaultColor; }</code>
+</pre>
+の様に、クラスに共通の属性を、静的メンバ変数の値 <b class="innerCaution">static string defaultColor</b> に保持する。<br>
+この変数の値は、ColorCircle.cpp 内で（.cpp が存在しない場合は main.cpp 等の、使用するいずれかのソースファイル中に）、
+<pre class="SourceCode"><code>#include "ColorCircle.h"
+
+<b class="innerCaution">string ColorCircle::defaultColor = "black";</b>
+
+int main () {
+...
+</code></pre>
+<p>
+の様に設定する。<br>
+変数 defaultColor は生成されるクラスの各インスタンスに対して割り付けられるのでは無く、
+ColorCircle というクラスそのものに対して一つだけ共通的に割り付けられる変数となる。</p>
+
+<h3>静的メンバ変数の配列化</h3>
+<p>配列変数を静的メンバ変数として使用する場合に、例えば色の配列であれば、
+<pre class="SourceCode">
+<code>static string colors[]; // 複数の色のキーワードを順番に格納</code>
+</pre>
+と宣言し、ソースファイル内で、
+<pre class="SourceCode">
+<code>string colors[] = {"black","red","blue","green","yellow","cyan","magenta","white"};</code>
+</pre>
+の様に初期化する。
+
+<h3>静的クラス</h3>
+<p>
+クラス内で定義される全てのメンバが静的である場合、そのクラスは静的クラスと呼ばれる。
+例えば、SVGの文書を生成するクラス svg は、複数のインスタンスを個別に生成する必要はなく、
+「ある種の機能をクラスとしてまとめておく」オブジェクトとして設計するのが適切なので、
+以下の様に静的クラスとして設計できる。<br>
+静的クラスは、「インスタンス化の必要が無い」という特徴を有するので、その構築子は実装しないか、private で宣言する方法が取られる。
+</p>
+
+<u>静的クラスの svg.h</u>
+<pre class="SourceCode"><code>class svg { // グラフィクスを描画するSVGドキュメントを生成／保存するクラス
+private:
+    static ofstream ofs; // ファイルを出力するストリーム
+public:
+    // ファイル名と横縦長を入力して、ファイル出力ストリームに対してSVGのルート要素を構成する
+    static void open (string filename, int width, int height);
+    static void close (); // SVGファイルを閉じる
+    static void drawCircle(int x, int y, int rad, string color); // 円を色付きで描画する
+};
+</code></pre>
+<p>ただし、
+<b class="innerCaution">
+ソースファイル (svg.cpp) 内では、static のキーワードは不要   
+</b>である！</p>
+
+<u>静的クラスの使用方法の例（draw() 関数内）</u>
+<pre class="SourceCode"><code>svg::open("circle.html", 640, 400); // ファイルを開く
+svg::drawCircle(x, y, rad); // 円の描画（svgObj のインスタンスは廃止）
+svg::close(); // ファイルを閉じる
+</code></pre>
+
+<p>
+静的クラスがメンバ変数を有する場合、<b class="innerCaution">その変数の実体を確保するために、いずれかのソースファイル内で宣言が必要</b>である。<br />
+例えば、メイン関数が含まれているソースファイル (main.cpp) 内の main 関数の前（外側）で、</p>
+<pre class="SourceCode"><code>using namespace std;
+
+<b class="innerCaution">ofstream svg::ofs;</b>
+
+int main() {
+...
+</code></pre>
+<p>のように記述する必要がある。</p>
+
+
+<h3>ポイント（静的メンバ）</h3>
+<ul class="Point">
+<li>各インスタンスに持たせる必要のない変数はクラスに共通な静的変数として宣言できる</li>
+<li>メンバ変数に依存しないメソッド（関数）は静的メソッドとして実装できる</li>
+<li>Ｃ言語風の外部変数（またはグローバル変数）を使用したい場合は、静的メンバ変数を用いる</li>
+<li>Ｃ言語風の外部関数を定義したい場合は、静的メソッドを用いる</li>
+<li>ただし、静的メンバの乱用は、オブジエクト指向プログラムの長所を損なう</li>
+</ul>
+
+<br>
+<h2>参照</h2>
+<p>
+Ｃ言語では、
+<pre class="SourceCode"><code>void swap (int a, int b) {
+    int tmp;
+    tmp = a;
+    a = b;
+    b = tmp;
+}
+
+void pswap (int *a, int *b) {
+    int tmp;
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+</code></pre>
+の関数で、
+<pre class="SourceCode"><code>int main () {
+    int x = 0, y = 1;
+
+    swap (x, y); // xとyの値は入れ替わらない。
+    pswap (&x, &y); // xとyの値は入れ替わる。
+}</code></pre>
+という様に、
+<br />
+<b>関数の外部で宣言されている変数の値を書き換えるためには、アドレスの値をポインタ変数に代入する必要がある</b>。<br>
+C＋＋の場合も同様の扱いが適用されるが、それに加えて「変数の参照渡し」という機能がある。
+<pre class="SourceCode"><code>void rswap (int&amp; a, int&amp; b) {
+    int tmp;
+    tmp = a;
+    a = b;
+    b = tmp;
+}
+
+int main () {
+    int x = 0, y = 1;
+
+    rswap (x, y); // xとyの値は入れ替わる！
+}</code></pre>
+
+「int&amp; a」で使用されている &amp;記号は、引数で渡される「変数 x や y の別名を a や b とする」という事を意味する。つまり、x と a、y と b がメモリの同じ領域の値を参照することになるので、
+pswap (&amp;x, &amp;y)のように、<b>「変数のアドレスをポインタ変数に渡す場合と同じ効果」</b>が
+<b>「ポインタ変数を陽に用いずに」</b>得られる。
+また、Circle クラスの例に戻ると、
+<pre class="SourceCode">
+<code>int getRadius () { return rad; }</code>
+</pre>
+では、メンバ変数 rad の数値を返すだけとなるが、
+<pre class="SourceCode">
+<code>int&amp; getRadiusByReference () { return rad; }</code>
+</pre>
+と宣言すると、メンバ変数 rad の別名を返す事になる。<br>
+<u>使用例</u>
+<pre class="SourceCode"><code>int main () {
+    Circle circ;
+
+    int r = circ.getRadius (); // r という新たな変数にrad の値が代入される
+    r = 100; // r の値が更新されるだけ
+    int&amp; rr = circ.getRadiusByReference (); // rr は、circ 内の rad の別名表現（同じメモリ領域を参照する）となる
+    rr = 100; // circ.rad の値が 100 に更新される
+}</code></pre>
+関数に引数を渡すときに、参照は多く用いられる。その理由は、
+<ul>
+<li>渡す変数の値を関数内で書き換えたい際に、Ｃ言語の様にポインタ変数を使わずに、すっきりとしたコードが書ける</li>
+<li>クラスのサイズが大きい時、その中身のコピーを渡すよりも、アドレスのみを渡した方が、関数を呼び出す際の処理時間やスタックのサイズが節約できる</li>
+</ul>
+等が挙げられる。<br>
+しかし、関数の返り値を参照で渡した場合は、クラスのメンバ変数を自由に書き換えられる事になる。したがって、注意深く使用しないとバグの温床になるので、あまり積極的には用いられない。
+
+<h3>ポイント（参照）</h3>
+<ul class="Point">
+<li>変数の実体をアドレス値を参照できる状態で渡す場合に用いる</li>
+<li>アドレス値を参照できるので、内容を直接的に更新できる</li>
+<li>インスタンスの内容をコピーする必要がないので、高速に内部状態を渡せる</li>
+<li>ポインタ特有の記述方法を用いなくて良い</li>
+</ul>
+    
+<h3>確認問題</h3>
+<p>ColorCircleクラスのメンバ変数 color の値をコピーする関数を、参照を用いる場合と用いない場合で作成する。
+このとき、一つの ColorCircle の色を変更した場合に、color をコピーした ColorCircle の色が変化するか否かを確認せよ。</p>
+<pre class="SourceCode">
+<code>class ColorCircle : public Circle {
+ ...省略
+     void copyColor (ColorCircle circ) { // このインスタンスの色の値を、circ のインスタンスにコピーする
+         circ.color = this->color;
+     }
+     void copyColorByReference (ColorCircle&amp; circ) { // 上記の関数と同じ機能であるが、引数を参照で渡す点が異なる
+         circ.color = this->color;
+     }
+};</code>
+</pre>
+
+<br>
+<h2>const 修飾子</h2>
+<p>const 修飾子は、プログラムで扱う変数や関数の意味を明確化し、コンパイラによる最適化を促進するために用いられる。</p>
+<h3>const 変数とメンバ関数</h3>
+<p>初期化を除いて、値を更新できない変数には const というキーワードを用いて変数宣言する。<br>
+また、メンバ関数の名前宣言部の末尾に const を付けることによって、そのメンバ関数の処理ではオブジェクトの状態（すなわちメンバ変数の値）は変化しないと宣言できる。</p>
+<u>Circle.h の新たな構成法</u>
+<pre class="SourceCode"><code>class Circle { 
+    protected:
+        const string <b class="innerCaution">defaultColor = "black"</b>; // デフォルト色を変更しない場合   
+    省略...
+    virtual void draw() <span class="innerCaution"> const </span>; // 描画関数はメンバ変数を更新しない
+    void setPosition(<span class="innerCaution">const</span> int&amp; mx, <span class="innerCaution">const</span> int&amp; my); // mx と my の値は更新しない
+    void getPosition(int&amp; mx, int&amp; my) <span class="innerCaution">const</span>; // メンバ変数を参照はできる
+    // 以下、省略...
+</code></pre>
+<br>
+<h3>ポイント（const 修飾子）</h3>
+<ul class="Point">
+<li>const を用いることにより、変数が読み取り専用（値の更新は不可）であることを明示できる</li>
+<li>参照と共に用いると効果的である</li>
+<ul>
+    <li>変数を引数として（内部的に）アドレス値で渡しながらも、値の書き換えを抑止できる</li>
+</ul>
+<li>メソッド（関数）の内容がオブジェクトの内部状態（すなわち、メンバ変数）の値には影響を与えない場合は、
+メソッド全体を const 指定できる</li>
+<li>const 指定を適切に与えることにより、実行効率が良くなる場合がある</li>
+</ul>
+
+<br>
+
+<!-- 平成２７年度に実施した課題の内容は、２８年度向けに既に更新されている！ -->
+<h2>Exercise (No.6)</h2>
+<div class="Exercise">
+<p>
+    Implement a program that displays the workong population fo each type of industry in Aichi prefecture, by using a bar chart. <br>
+    The data is supplied by (Aichi.txt) that is converted to cvs such as </p>
+    <pre>
+IndustryType_Name1, IndustryType_Name2,...
+WorkingPopulationFor_Name1, WorkingPopulationFor_Name2,...
+</pre>
+
+<p>
+A BarGraph class is constructed for drawing bar chart and a Population class is for making the table data of the working populations per industry type. They must be designed to satisfy the following conditions:</p>
+<ul>
+   <li>The Population class stores data with the member variables of standard template class of <code>vector&lt;string&gt; labels</code> and <code>vector&lt;int&gt; values</code> (see the sample code below).</li>
+    <li>The BarGraph class draws a bar chart with the svg class, by refering the values of the Population class.</li>
+    <li>The svg class is re-factored (modified) as a static class.</li>
+    <li>The data file (Aichi.txt) is put on the same directory (folder) as the execution file.</li>
+</ul>
+
+<u>Example of execution:</u>
+<img src="svgGraph.jpg" />
+</div>
+
+<h2>提出課題 (その6)</h2>
+<div class="Exercise">
+<p>
+愛知県の就業人口の業種別構成データ（Aichi.txt）を横向きの棒グラフで表示するプログラムを作成する。<br>
+このデータは cvs 形式に変換されたテキストファイルであり、以下の形式を有する。
+<pre>
+業種名１, 業種名２, ...
+業種１の人口, 業種２の人口, ...
+</pre>
+
+ただし、棒グラフを描画するクラス BarGraph と、就業人口の業種別構成表を構成するクラス Population を以下の要件を満たすように設計する。
+<ul> 
+    <li>Population クラスは、標準テンプレートクラスのメンバ変数 <code>vector&lt;string&gt; labels</code>、および<code>vector&lt;int&gt; values</code> を用いてデータを保存する（下記のサンプルプコードを参照する）。</li>
+    <li>BarGraph クラスは、Population クラスのオブジェクトの値を参照しながら svg クラスのメソッドを用いて棒グラフを描画する。</li>
+    <li>svg クラスは、静的クラスとして再実装する。</li>
+    <li>データファイル（Aichi.txt）は、実行ファイルと同じ場所に置かれる．</li>
+</ul>
+
+<u>実行例：</u>
+<img src="svgGraph.jpg" />
+
+</div>
+<br>
+<h3>課題作成のヒント</h3>
+<h4>svg クラスの機能拡張</h4>
+<p>
+    BarGraph は、
+    <a href="http://www.hcn.zaq.ne.jp/___/SVG11-2nd/shapes.html#RectElement">rect 要素</a>
+    を新たに加えて描画する（<a href="http://memopad.bitter.jp/w3c/svg/svg_rect.html">生成例</a>）。また、データのラベルは、<a href="http://www.hcn.zaq.ne.jp/___/SVG11-2nd/text.html#TextElement">text 要素</a>を用いる<a href="http://memopad.bitter.jp/w3c/svg/svg_text.html">（生成例）</a>。したがって、これらの新たな要素を扱う機能を svg クラスに以下の様に追加する。</p>
+<pre class="SourceCode"><code>void svg::drawRect(int x, int y, int width, int height) {
+    ofs &lt;&lt;  "&lt;rect x='" &lt;&lt; x &lt;&lt; "' y='" &lt;&lt; y &lt;&lt; "' width='" &lt;&lt; width &lt;&lt; "' height='" &lt;&lt; height
+        &lt;&lt; "' fill='black' /&gt;" &lt;&lt; std::endl;
+}
+
+void svg::drawText(int x, int y, string label) {
+    ofs &lt;&lt; "&lt;text x='" &lt;&lt; x &lt;&lt; "' y='" &lt;&lt; y &lt;&lt; "'&gt;" &lt;&lt; std::endl; // 開始タグ
+    ofs &lt;&lt; label; // 描画テキスト
+    ofs &lt;&lt; "&lt;/text&gt;"; // 終了タグ
+}    
+</code></pre>
+
+<h4>数値データのファイル読み込み</h4>
+<p>
+データファイルからラベルデータと数値を読み込むメソッドは、以下のコードを参考にして作成する
+</p>
+<u>Population.h の構成例</u>
+<pre class="SourceCode"><code>#include &lt;vector&gt;
+#include &lt;string&gt;
+
+<b class="innerCaution">using namespace std; // std:: の記述を省略するための記述
+</b>
+class Population {
+private:
+	vector&lt;string&gt; labels; // 項目の名前（業種名）を配列で保存
+	vector&lt;int&gt; values; // 項目の値（就業人口）を配列で保存
+	vector&lt;string&gt; split(string& str, char delim); // クラスの内部でのみ使用する関数
+public:
+	void read(const char *fileName); // ファイルからデータを読み込むメンバ関数
+// 以後、必要なメンバ変数や関数があれば、追加する。
+};
+</code></pre>
+
+<u>Population.cpp での実装例</u>
+<pre class="SourceCode"><code>#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include "Population.h"
+
+<b class="innerCaution">// Population.h 内で using namespace std; が記述されているので、std::の記述は全て省略されている！</b>
+void Population::read(const char *fileName) {
+    ifstream ifs(fileName); // データファイル名を指定して開く
+    if(ifs.fail()) { // データファイルの読み込みに失敗した場合
+        cerr &lt;&lt; "File do not exist."; // 名前が fileName のファイルが見つからなかった場合のエラー出力
+        exit(0); // 強制終了
+    }
+    string str; // 分解前の文字列を一時保管する変数
+    getline(ifs, str, '\r'); // 入力ストリームからの一行分の文字列を str に読み込む
+    vector&lt;string&gt; labelStrs = split(str, ','); // 「,」を区切り文字とした文字列の分解
+    for(int i=0; i &lt; labelStrs.size(); i++) {
+        labels.push_back(labelStrs.at(i)); // 文字列データ（業種名）代入する
+    }
+    getline(ifs, str, '\r'); // 入力ストリームからの一行分の文字列を str に読み込む
+    vector&lt;string&gt; valueStrs = split(str, ','); // 「,」を区切り文字とした文字列の分解
+    for(int i=0; i &lt; valueStrs.size(); i++) {
+        values.push_back(atoi(valueStrs.at(i).c_str())); // 数値データ（就業人口）を代入する。atoi は文字列を整数値に変換する標準関数
+    }
+}
+
+vector&lt;string&gt; Population::split(string&amp; str, char delim) { // delim を区切り文字とした文字列の分解。引数の文字列 str は参照で渡される
+    vector&lt;string&gt; res;
+    size_t current = 0, found;
+    while((found = str.find_first_of(delim, current)) != string::npos){
+        res.push_back(string(str, current, found - current));
+        current = found + 1;
+    }
+    res.push_back(string(str, current, str.size() - current));
+    return res;
+}</code></pre>
+
+<p class="innerCaution">
+標準関数のライブラリーを使用する場合には、コンパイル時に -std=c++11 のオプションを指定する必要がある。
+</p>
+
+<!-- 以下は、ヒントが必要な場合に開示する！
+<u>BarGraph.h の実装例</u>
+<pre class="SourceCode"><code>class BarGraph {
+private:
+	Population pop;
+public:
+	BarGraph ();
+	void readData (const char *fileName); // pop.read(fileName) を呼び出す
+	void draw(const char* outFile); // outFileは出力ファイル名 svg::open, drawRect, drawText を使う
+};
+</code></pre -->
+
+</code></pre>
+</div>
+</body>
+</html>

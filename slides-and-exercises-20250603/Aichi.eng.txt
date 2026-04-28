@@ -1,0 +1,1 @@
+Agriculture,Construction,Manufacture,ICT,Transportation,Retail,Finance,Research,Hotel&Restaurant,Amusement,Education,Welfare,Service78,261,1016,77,191,654,76,112,220,118,153,385,249

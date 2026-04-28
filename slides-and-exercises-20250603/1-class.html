@@ -1,0 +1,350 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>クラス宣言</title>
+<link rel="stylesheet" href="common.css" type="text/css" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+<div id="main">
+
+<h1>C++演習問題用テキストの様式</h1>
+<br/>
+<div class="SourceCode">
+ソースコードは、この枠に囲まれて記述される</div>
+<br/>
+<div class="Point">要点は、この枠に囲まれてこの書式で記述される</div>
+<br/>
+<div class="Caution">注意点は、この書式で記述される</div>
+<br/>
+<div class="CommandLine">ターミナル上でのコマンド入力や表示結果は、この書式で記述される</div>
+<br/>
+<div class="Exercise">演習課題と練習問題は、この枠に囲まれてこの書式で記述される</div>
+
+<br />
+
+<h1>クラス宣言</h1>
+<h2>C言語の構造体からC＋＋のクラス宣言へ</h2>
+
+例として、円を描画するプログラムを考える。<br />
+
+<h3>Ｃ言語の構造体として実装した場合：</h3>
+<pre class="SourceCode"><code>#include &lt;stdio.h&gt;
+
+struct Circle { /* 円の構造体 */
+	int x, y; /* 中心座標 */
+	int rad; /* 半径 */
+};
+
+/* 円の描画関数 */
+void drawCircle (struct Circle circ) {
+	printf ("位置(%d,%d)に半径%dの円を描画\n", circ.x, circ.y, circ.rad);
+}
+
+int main () {
+	struct Circle circ; /* 円 */
+	int i;
+	for (i = 0; i &lt; 10; i++) {
+		circ.x = i + 10;
+		circ.y = 2 * i + 10;
+		circ.rad = rand () % 10; /* 半径は乱数で決定 */
+		drawCircle (circ); /* 描画の実行 */
+	}
+}
+</code></pre>
+
+<h3>C＋＋言語のクラス宣言への変換</h3>
+<p>
+円を描画するという機能は、円固有のものと考え、構造体の中に関数を含めてしまう。
+</p>
+
+<u>クラス宣言の場合（Circle.h）
+<i>注： // はコメント記号であり、以後の改行までの記号はコンパイル時に無視される</i>
+</u>
+<pre class="SourceCode">
+<code>#include &lt;stdio.h&gt;
+
+class Circle { // クラスの名前を宣言
+public: // 以後のメンバを公開
+	int x, y; // 中心座標：メンバ変数
+	int rad; // 半径：メンバ変数
+
+	Circle () { x = y = 0; rad = 10; } // 構築子 
+	Circle (int cx, int cy, int r) {x = cx; y = cy; rad = r; } // 違う形式の構築子
+	~Circle () {} // 消滅子（メモリ領域解放以外の処理は行わない）
+
+	// 以後、メンバ関数
+	void draw () { printf ("位置(%d,%d)に半径%dの円を描画\n", x, y, rad); } // 描画関数（のつもり）
+}; // ここで、セミコロンを忘れずに付ける！
+</code></pre>
+
+<u>使用例その１（main1.cpp）</u>
+
+<pre class="SourceCode">
+<code>#include "Circle.h" // 上記のヘッダファイルを読み込む
+
+int main () {
+	Circle circ; // 円クラスの実体（インスタンス）の生成。引数がない場合は、() を省略できる。
+	for (int i = 0; i &lt; 10; i++) {
+		circ.x = i + 10; circ.y =  2 * i + 10; // 位置の設定
+		circ.rad = 10 * (i+1); // 半径の設定
+		circ.draw (); // 描画
+	}
+}
+</code></pre>
+
+<u>使用例その２（main2.cpp）：Circleクラスのインスタンスを動的に生成する</u>
+<pre class="SourceCode">
+<code>#include "Circle.h"
+
+int main () {
+	for (int i = 0; i &lt; 10; i++) {
+		Circle *circ = new Circle (10*(i+1), 5*(i+2), 5*i+5); // 値を代入しながらの new を使用した生成
+		circ->draw (); // 描画
+		delete circ;
+	}
+}
+</code></pre>
+
+<h3>ポイント（クラス宣言）：</h3>
+<ul class="Point">
+<li>「クラス」とは、変数の型を定義するものである</li>
+<li>クラスによって指定される「型」とは、メンバ変数とメンバ関数の集まりである。</li>
+<li>クラスの型に基づいて、メモリ上で値を読み書きできる様に実体化された変数を「インスタンス」と呼ぶ。
+<li>オブジェクト指向言語の「オブジェクト」とは、この型としての「クラス」と変数として実体化された「インスタンス」の総称である。</li>
+    <li>クラスの実体（インスタンス）を生成するための関数は構築子（コンストラクタ）と呼ばれ、クラス名と同じ名前で作成する。</li>
+    <li>構築子は引数の異なる形式で複数種類を宣言できる。</li>
+    <li>クラスの実体（インスタンス）をメモリから廃棄する関数は消滅子（デストラクタ）と呼ばれ、〜の次にクラス名と同じ名前を付ける。</li>
+    <li>new 演算子と構築子を用いてインスタンスを生成する際には、実体へのアドレスをポインタ変数で受け取る。</li>
+    <li>new で動的に生成したインスタンスを消滅させるには delete 演算子を用い、実体へのポインタ変数を渡す。</li>
+</ul>
+
+
+<h2>メンバ変数の非公開化</h2>
+最初の例では、public というキーワードを付けて、クラスのメンバ変数を他のクラスや関数からも値を参照／代入できる様に宣言したが、これを private というキーワードを付けて隠蔽する事ができる。
+<pre class="SourceCode">
+<code>#include &lt;stdio.h&gt;
+
+class Circle { // クラスの名前を宣言
+
+private: // 以後のメンバ変数を非公開
+	int x, y; // 中心座標：メンバ変数
+	int rad; // 半径：メンバ変数
+
+public: // 以後のメンバ関数は公開
+	Circle () { x = y = 0; rad = 10; } // 構築子 
+	// 以後、他の構築子と draw は、上記例と同じ
+	// 追加する関数
+	void setPosition (int x, int y) { this->x = x; this->y = y; } // this->x はメンバ変数の x であり，引数 x とは異なる変数！
+	void setRadius (int rad) { this->rad = rad; } // this->rad と rad は異なる変数！
+	int getRadius () { return rad; }
+}; // ここで、セミコロンを忘れずに付ける！
+</code></pre>
+
+<h3>ポイント（公開と非公開）：</h3>
+<ul class="Point">
+<li>メンバ変数とメンバ関数は、他のクラスに対してその使用を公開／非公開にできる。</li>
+<li>public: と宣言された以降のメンバ（変数／関数）は公開、private: と宣言された以降は非公開となる。</li>
+<li>メンバ変数を非公開にすると、値の不用意な書き換えを防止できる。</li>
+<li>他のクラスから非公開のメンバ変数に値を代入する際には、公開されたメンバ関数（setPosition等）を使用する。</li>
+<li>メンバ変数の値の代入にメンバ関数を介入させる事により、値の整合性の確認やエラー処理をクラス内の処理として隠蔽（カプセル化）できる。<br>
+例：代入する半径の値が負の場合は、予測できないエラーを防ぐために０の値を代入しておく。<br>
+<code>void setRadius (int r) { if (r &lt; 0) rad = 0; else rad = r; }</code></li>
+<li>他のクラスから非公開の変数の値を参照する場合にも、公開されたメンバ関数を使用する。<br>
+例：<code>int getRadius () { return rad; }</code></li>
+<li>this->x は x と同じ意味である。「this」というキーワードは、実体化されたクラスへのポインタを表しいるので、this->メンバ変数名 or 関数名 という形式でクラス内のメンバを呼び出せる。通常は this を
+使う必要はない（メンバの名前が出てきたときに、暗黙に追加される）が、変数や関数がメンバである事を明示する際に使用することがある。<br>
+例：引数名をメンバ変数名と同じにしてしまった場合<br>
+<code>void setRadius (int rad) { this->rad = rad; }</code>
+</li>
+<li>public または private の宣言がない場合には、private 扱いとなる。</li>
+<li>Ｃ言語の構造体を使用できるが、そのメンバ変数は必ず public 扱いとなる（ただし、明記する必要は無い）。</li>
+</ul>
+
+<h2>引数の宣言</h2>
+<h3>デフォルト引数の利用</h3>
+<p>関数宣言の引数の部分で = 記号を用いて代入する記述を加えると、その引数の記述を省略した際のデフォルト値を与える事ができる。</p>
+<u>宣言例</u>
+<pre class="SourceCode">
+<code>class Circle { // クラスの名前を宣言
+private: // 以後のメンバ変数を非公開
+	int x, y; // 中心座標：メンバ変数
+	int rad; // 半径：メンバ変数
+	
+public: // 以後のメンバ関数は公開
+	Circle () { x = y = 0; rad = 10; } // 引数を指定しない構築子 
+	Circle (int cx, int cy, <span class="innerCaution">int r = 10</span>) { x = cx; y = cy; rad = r; } // 引数を指定する構築子
+    ...以後、省略
+};
+</code></pre>
+
+<u>使用例（main3.cpp）</u>
+<pre class="SourceCode">
+<code>#include "Circle.h"
+
+int main () {
+	Circle A(30, 20); // デフォルト値として rad = 10 が代入される
+	A.draw(); // 結果を確認
+}	
+</code></pre>
+
+<p>デフォルト値は引数の右側から宣言しなければならない。すなわち、デフォルト宣言された引数の次に
+デフォルト宣言されていない引数が続いてはならない。</p>
+
+<u>誤った記述例</u>
+<pre class="Caution">
+<code>Circle (int cx = 0, int cy = 0, int r) { x = cx; y = cy; rad = r; }</code>
+</pre>
+
+<h3>クラス変数の引数</h3>
+<p>メンバ関数は任意のオブジェクト（クラスを実体化した変数）を引数に取る事ができる．<br />
+例えば，半径の値を Circle クラスの他のオブジェクトの値を参照して設定する関数は，以下の様に設計される． 
+</p>
+<pre class="SourceCode">
+<code>void setRadius (Circle circ) { this->rad = circ.rad; } // circ の半径の値をコピーする</code>
+</pre>
+
+<h2>ヘッダファイルとソースファイルの分離</h2>
+<p>上記の例では、メンバ関数の実装はヘッダファイル内（Circle.h）で記述しているが、通常はメンバ関数の内容は
+個別のソースファイルに分離して作成する。</p>
+
+<u>ヘッダファイル（Circle.h）</u>
+<pre class="SourceCode">
+<code>#include &lt;stdio.h&gt;
+
+class Circle { 
+private:
+    int x, y;
+    int rad;
+
+public:
+    Circle (); // 関数の内容は記述しない
+    Circle (int cx, int cy, int r = 10);
+    void setPosition (int x, int y);
+    void setRadius (int rad);
+    int getRadius ();
+    void draw ();
+};
+</code></pre>
+<u>ソースファイル（Circle.cpp）</u>
+<pre class="SourceCode">
+<code><span class="innerCaution">#include "Circle.h"</span>
+
+Circle::Circle () { // 引数を指定しない構築子 
+    x = y = 0; rad = 10;
+} 
+
+Circle::Circle (int cx, int cy, int r) {  // 引数を指定する構築子
+    x = cx; y = cy; rad = r; 
+}
+
+void Circle::setPosition (int x, int y) { 
+    this->x = x; this->y = y; // this->x はメンバ変数の x であり，引数 x とは異なる変数！
+}
+
+void Circle::setRadius (int rad) { 
+    this->rad = rad; // this->rad と rad は異なる変数！
+}
+
+int Circle::getRadius () {
+    return rad;
+}
+
+void Circle::draw () {
+    printf ("位置(%d,%d)に半径%dの円を描画\n", x, y, rad);
+}
+</code></pre>
+<p class="innerCaution">main3.cpp で実行を確認する。</p>
+
+<h2>補足（コンパイル方法）</h2>
+C＋＋のソースファイルのコンパイルは、g++ を用いる。<br/><br />
+<u>ソースファイル（Circle.cpp）からオブジェクトファイル（Circle.o）の生成</u>
+<pre class="CommandLine">
+<code>g++ -c Circle.cpp</code>
+</pre>
+<u>オブジェクトファイル（Circle.o）から実行ファイル（myexe）の生成</u>
+<pre class="CommandLine">
+g++ -o myexe main.cpp Circle.o
+</pre>
+<p>ただし、main.cpp は main 関数が含まれたソースファイルである。また、ソースファイルやオブジェクトファイルは一度に複数を指定できる。</p>
+
+<p class="innerCaution">Circle.cpp のファイルが存在しない（Circle.h 内に全てを記述した）場合には、以下の様にコンパイルする。</p>
+<pre class="CommandLine">
+<code>g++ -o myexe main.cpp</code>
+</pre>
+
+<p>以降、提出課題では、必ず以下のようなMakefikeを作成し、makeでコンパイルできるようにして、提出してください。</p>
+<p><a href="./sample/Makefile">Makefile</a></p>
+
+<h2>確認問題</h2>
+<p>上記の「ヘッダファイルとソースファイルの分離」でのファイル（Circle.h, Circle.cpp）を用いて、
+以下の main 関数を実行した場合のエラー内容を確認する。</p>
+<u>ソースファイル（mainerr.cpp）</u>
+<pre class="SourceCode">
+<code>#include "Circle.h"
+
+int main () {
+    int p[2], r;
+    for (int i = 0; i &lt; 10; i++) {
+        Circle *circ = new Circle (i+10, 2*i+10, 15*(i+1)); // 値を代入しながらの生成
+        p[0] = circ->x; // エラー！
+        p[1] = circ->y; // エラー！
+        r = circ->rad; // エラー！
+        printf("Position = %d, %d, Radius = %d\n", p[0], p[1], r);
+        circ->draw ();
+    }
+    return (1);
+}
+</code></pre>
+
+<h2>Exercise (No.1)</h2>
+<div class="Exercise">
+
+<p>Add the member function of 
+<code>void getPosition(int xy[]);</code>
+to Cricle class (Circle.h and Circle.cpp) which refers the values of member variables x and y. Also, check the function with sample code mainerr.cpp by improving it so that the parameters p[] and r can be updated.
+</p>
+
+<!--
+<h3>No.2</h3>
+<p>
+Add the member function of 
+<code>bool checkOverlap (Circle circ);</code>
+that returns true if there is intersection between the object of Circle class and the other object given by argument "circ", and return false otherwise.
+Notice that the two circles are regarded as intersecting when they are contacting each other, and when one circle involves the other.
+</p>
+<p class="innerCaution">
+Type definition <code>bool</code> is the logical value (true or false) used in C++   
+</p>
+-->
+
+</div>
+
+<h2>提出課題 (その1)</h2>
+<div class="Exercise">
+<p>「ヘッダファイルとソースファイルの分離」でのファイル（Circle.h, Circle.cpp）<br>
+にメンバ変数 x, y の値を参照する関数<code>void getPosition (int xy[])</code>を作成し、<br>
+上記のプログラム mainerr.cpp が正常に実行される様に、変数 p[], r に値を代入できる文に書き変える。<br>
+ただし、既存のメンバ関数 getRadius() はそのまま使用して良い。</p>
+
+<!--
+<h3>その2</h3>
+<p>他の Circle クラスのオブジェクトを引数とする，二つの円の交差を計算する以下の関数を完成させる．
+</p>
+<u>Circle.h へ追加するメンバ関数</u>
+<pre class="SourceCode">
+<code>bool checkOverlap (Circle circ); // この円と circ の円が交わる場合に true の値を，交わらない場合に false の値を返す</code>
+</pre>
+<p>ただし，二つの円が接する場合や、一方が他方の内部に完全に含まれる場合は，交わっている状態とする．</p>
+<p>？？？まちがい？？？また，一方の円が他方の円と境界線が交わることなく内部に包含される場合は，交わるとして良い．</p>
+<p class="Caution">
+注： 型宣言 bool は、論理値（真：true または偽：false）を取るC＋＋の型である。
+</p>
+-->
+
+</div>
+</div>
+</body>
+</html>
