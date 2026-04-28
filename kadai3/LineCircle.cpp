@@ -30,7 +30,6 @@ void LineCircle::setPosition (int x, int y) { // 描画位置の設定(オーバ
     this->y = y + 100;
 }
 
-void LineCircle::setRadius (int N) { // 半径の設定(オーバーライド)
-    this->N = N;
-    this->rad = sqrt(100*100 + 100*100) - sqrt(100*100 + 100*100 - 2*100*100*cos(2*M_PI/N));
+void LineCircle::setRadius (int r) { // 半径の設定(オーバーライド)
+    this->rad = r;
 }
