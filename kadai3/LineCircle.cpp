@@ -21,15 +21,11 @@ void LineCircle::setColor (std::string c) { // 色の設定
     color = c;
 }
 
-void LineCircle::setWidth (int w) {
+void LineCircle::setWidth (int w) { // 輪郭の太さの設定
     width = w;
 }
 
 void LineCircle::setPosition (int x, int y) { // 描画位置の設定(オーバーライド)
     this->x = x + 100;
     this->y = y + 100;
-}
-
-void LineCircle::setRadius (int r) { // 半径の設定(オーバーライド)
-    this->rad = r;
 }
