@@ -14,15 +14,11 @@ DoubleCircle::DoubleCircle (int cx, int cy, int r, std::string inc, std::string 
 }
 
 void DoubleCircle::draw (svg* svgObj) { // Circle クラスの draw () を上書き（オーバーライド）する
-    svgObj->drawCircle(x, y, rad, incolor);
-    svgObj->drawCircle(x, y, rad*ratio, outcolor);
+    svgObj->drawCircle(this->x, this->y, this->rad, incolor);
+    svgObj->drawCircle(this->x, this->y, this->rad*ratio, outcolor);
 } 
 
-void DoubleCircle::setColor (std::string outc, std::string inc) { // 色の設定
-    incolor = inc;
-    outcolor = outc;
-}
-
-void DoubleCircle::setRatio (double r) { // 内円の大きさの割合
-    ratio = r/100.0;
+void DoubleCircle::setColor (std::string c[]) { // 色の設定
+    incolor = c[1];
+    outcolor = c[0];
 }

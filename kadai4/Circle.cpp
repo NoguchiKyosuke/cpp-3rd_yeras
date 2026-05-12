@@ -25,16 +25,20 @@ void Circle::getPosition (int xy[]) {
     xy[1] = y;
 }
 
-void Circle::getRadius () {
+void Circle::getRadius (int N) {
     this->rad = sqrt(x*x + y*y - 2*x*y*cos(2*M_PI/N))/2;
 }
 
-void Circle::draw (svg* svgObj, int N) {
-    this->N = N;
-    this->getRadius();
-    for (int i = 0; i < N; i++){
-        this->x = sin(i * 2 * M_PI /N) * 100 + 200;
-        this->y = cos(i * 2 * M_PI /N) * 100 + 200;
-        svgObj->drawCircle(this->x, this->y, this->rad);
-    }
+void Circle::setRatio (double r) { // 内円の大きさの割合
+    ratio = r/100.0;
 }
+
+// void Circle::draw (svg* svgObj, int N) {
+//     this->N = N;
+//     this->getRadius();
+//     for (int i = 0; i < N; i++){
+//         this->x = sin(i * 2 * M_PI /N) * 100 + 200;
+//         this->y = cos(i * 2 * M_PI /N) * 100 + 200;
+//         svgObj->drawCircle(this->x, this->y, this->rad);
+//     }
+// }

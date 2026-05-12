@@ -11,16 +11,10 @@ ColorCircle::ColorCircle (int cx, int cy, int r, std::string c) : Circle (cx, cy
      color = c;
 }
 
-void ColorCircle::draw (svg* svgObj, int N) { // Circle クラスの draw () を上書き（オーバーライド）する
-    this->N = N;
-    this->getRadius();
-    for (int i = 0; i < N; i++){
-        this->x = sin(i * 2 * M_PI /N) * 100 + 200;
-        this->y = cos(i * 2 * M_PI /N) * 100 + 200;
-        svgObj->drawCircle(this->x, this->y, this->rad, this->color);
-    }
-} 
-
-void ColorCircle::setColor (std::string c) { // 色の設定
-    color = c;
+void ColorCircle::setColor (std::string c[]) { // 色の設定
+    color = c[0];
 }
+
+void ColorCircle::draw (svg* svgObj) { // Circle クラスの draw () を上書き（オーバーライド）する
+    svgObj->drawCircle(this->x, this->y, this->rad, this->color);
+} 
