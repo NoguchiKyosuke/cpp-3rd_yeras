@@ -38,7 +38,7 @@ public:
         this->x = x;   // this->x はメンバ変数の x であり，引数 x とは異なる変数！
         this->y = y; 
         for(long unsigned int i=0; i < circles.size(); i++){
-            circles[i]->setPosition(this->x + 100*cos(2*M_PI*i/circles.size()), this->y + 100*sin(2*M_PI*i/circles.size()));
+            circles[i]->setPosition(this->x + 100*sin(2*M_PI*i/circles.size()), this->y + 100*cos(2*M_PI*i/circles.size()));
             circles[i]->setRadius(sqrt((100*100 + 100*100 - 2*100*100*cos(2*M_PI/circles.size())))/2);
         }
     }

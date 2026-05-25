@@ -22,7 +22,7 @@ int main(int args, char* argv[]) {
         cc.setCircles(n); // 円の個数の指定
         lc.setCircles(n);
         dc.setCircles(n);
-    }catch(RingCirclesException pe){
+    }catch(const RingCirclesException& pe){
         pe.print();
         return 0;
     }
