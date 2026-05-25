@@ -26,6 +26,6 @@ void LineCircle::setWidth (int w) { // 輪郭の太さの設定
 }
 
 void LineCircle::setPosition (int x, int y) { // 描画位置の設定(オーバーライド)
-    this->x = x + 100;
-    this->y = y + 100;
+    this->x = x;
+    this->y = y;
 }

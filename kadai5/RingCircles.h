@@ -3,6 +3,7 @@
 #include <stdio.h>
 using namespace std;
 #include <vector>
+#include "RingCirclesException.h"
 #include "svg.h"
 
 #define M_PI 3.14159265358979323846
@@ -22,8 +23,14 @@ public:
     }
 
     void setCircles (int n) { // 円の個数の指定
-        for (int i = 0; i < n; i++){
-            circles.push_back(new T());
+        if (n < 4){
+            throw RingCirclesException("Error in RingCircles ... the number of circles is too small!");
+        }else if (n > 100){
+            throw RingCirclesException("Error in RingCircles ... the number of circles is too large!");
+        }else{
+            for (int i = 0; i < n; i++){
+                circles.push_back(new T());
+            }
         }
     }
 

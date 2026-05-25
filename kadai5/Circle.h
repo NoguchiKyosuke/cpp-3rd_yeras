@@ -5,6 +5,7 @@
 
 class Circle { 
 friend class ColorCircle;
+friend class LineCircle;
 friend class DoubleCircle;
 private:
     int x, y;
