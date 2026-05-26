@@ -5,6 +5,9 @@
 ### kadai3
 - AccessModifier => usually use "public"
 
+### kadai6
+- max_element() returns tapplee, so use "auto" for the type of variable to receive the return value of max_element().
+
 ### compile check list
 - friend class
 
