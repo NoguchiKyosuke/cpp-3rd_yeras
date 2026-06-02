@@ -33,3 +33,31 @@ vector<string> Population::split(string& str, char delim) { // delim を区切�
     res.push_back(string(str, current, str.size() - current));
     return res;
 }
+
+void Population::display() {
+    for(unsigned long i=0; i < labels.size(); i++) {
+        cout << labels.at(i) << ": " << values.at(i) << endl; // データを表示する
+    }
+}
+
+void Population::operator % (const Population& p){
+    for(unsigned long i=0; i < values.size(); i++) {
+        values.at(i) = values.at(i) / p.values.at(i) * 100; // 就業人口の比率を取得する
+    }
+}
+
+int Population::operator ! (){
+    float maxF = 0;
+    int maxN = 0;
+    for(unsigned long i=0; i < values.size(); i++) {
+        if(maxF < values.at(i)) {
+            maxF = values.at(i); // 就業人口の最大値を取得する
+            maxN = (int)i;
+        }
+    }
+    return maxN;
+}
+
+std::string Population::operator ^ (int n){
+    return labels.at(n); // 就業人口の最大値に対応する項目の名前を取得する
+}
