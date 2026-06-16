@@ -1,17 +1,17 @@
 #include "Message.h"
 
 Message::Message () {
-    message = "Please set a message.";
+    message = nullptr;
 }
 
-Message::Message (char* str) {
+Message::Message (const char* str) {
     message = str;
 }
 
-char* Message::getMessage () {
+const char* Message::getMessage () {
     return message;
 }
 
-void Message::setMessage (char* str) {
+void Message::setMessage (const char* str) {
     message = str;
 }

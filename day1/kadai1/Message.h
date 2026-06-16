@@ -4,10 +4,10 @@
 
 class Message {
 private:
-    char* message;
+    const char* message;
 public:
     Message ();
-    Message (char* str);
-    char* getMessage ();
-    void setMessage (char* str);
-}
+    Message (const char* str);
+    const char* getMessage ();
+    void setMessage (const char* str);
+};
