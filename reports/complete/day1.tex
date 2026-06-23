@@ -1,0 +1,294 @@
+\documentclass[paper=a4,fontsize=11pt]{jlreq}
+
+% 必要なパッケージ
+\usepackage{luatexja} % LuaLaTeXで日本語を使うため
+\usepackage{listings} % ソースコード表示用
+\usepackage{xcolor}   % ソースコードの色付け用
+
+% ソースコード表示(listings)の設定
+\lstset{
+    basicstyle=\ttfamily\small, 
+    numbers=left,               % 行番号を左に表示
+    numberstyle=\tiny\color{gray}, 
+    frame=single,               
+    tabsize=4,                  
+    breaklines=true,            
+    captionpos=t,               
+    showstringspaces=false      
+}
+
+\title{ソフトウェア演習2B 第1回レポート}
+\author{学籍番号: 263354 \quad 氏名: 野口恭介}
+\date{\today}
+
+\renewcommand{\lstlistingname}{リスト} % 「Listing 1」などの表記を「ソースリスト 1」に変更
+
+\begin{document}
+
+\maketitle
+
+% --- 課題1 ---
+\section{課題1}
+\subsection{課題内容}
+以下の仕様を満たすクラス Message を実装し，動作確認を行いなさい．以下の仕様を満たしていれば，コンストラクタやその他のメンバ関数の実装については自由に行って良い． %
+
+\begin{itemize}
+    \item メンバ変数として，public ではない char 型のポインタ変数 message を持つ %
+    \item 引数を取らないデフォルトコンストラクタと，char 型のポインタ変数を引数に持つコンストラクタを持つ %
+    \item 引数として char 型のポインタ変数で文字列を与え，メンバ変数 message にコピーする関数をメンバ関数として持つ %
+    \item メンバ変数 message の値 (char 型のポインタ) を戻り値として返す関数をメンバ関数として持つ %
+\end{itemize}
+
+\subsection{ソースコード}
+\begin{lstlisting}[caption={課題1のmain.cpp}, language=C++, label={lst:課題1のmain.cpp}]
+#include <iostream>
+#include "Message.h"
+
+int main(int argc, char* argv[]) {
+    Message obj;
+    obj.setMessage("Hello, World!");
+    std::cout << obj.getMessage() << std::endl;
+
+    return 0;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={課題1のMessage.h}, language=C++, label={lst:課題1のMessage.h}]
+#pragma once
+#include <cstring>
+
+class Message {
+private:
+    char* message;
+public:
+    Message ();
+    Message (const char* str);
+    ~Message ();
+    const char* getMessage ();
+    void setMessage (const char* str);
+};
+\end{lstlisting}
+
+\begin{lstlisting}[caption={課題1のMessage.cpp}, language=C++, label={lst:課題1のMessage.cpp}]
+#include "Message.h"
+
+Message::Message () {
+    message = nullptr;
+}
+
+Message::Message (const char* str) {
+    message = new char[strlen(str) + 1];
+    std::strcpy(message, str);
+}
+
+Message::~Message () {
+    delete[] message;
+}
+
+const char* Message::getMessage () {
+    return message;
+}
+
+void Message::setMessage (const char* str) {
+    delete[] message;
+    message = new char[strlen(str) + 1];
+    std::strcpy(message, str);
+}
+\end{lstlisting}
+
+\subsection{プログラムに関する説明}
+リスト\ref{lst:課題1のMessage.h}とリスト\ref{lst:課題1のMessage.cpp}より、作成したクラスMessageの説明を以下に示す。\\
+まず、Messageクラスは、文字列を格納するためのメンバ変数messageを持つ。messageはchar型のポインタであり、publicではないため、外部から直接アクセスすることはできない。\\
+次に、Messageクラスには、引数を取らないデフォルトコンストラクタと、char型のポインタ変数を引数に持つコンストラクタが定義されている。デフォルトコンストラクタでは、messageをnullptrに初期化し、引数付きコンストラクタでは、与えられた文字列をコピーしてmessageに格納する。\\
+また、Messageクラスには、メンバ変数messageの値を取得するためのgetMessage関数と、文字列を設定するためのsetMessage関数が定義されている。getMessage関数は、messageの値を戻り値として返す。setMessage関数は、既存のmessageのメモリを解放し、新しい文字列をコピーするために新しいメモリを確保して、引数として与えられた文字列をコピーしてmessageに格納する。\\
+最後に、Messageクラスには、デストラクタが定義されており、messageのメモリを解放する。これにより、Messageオブジェクトが破棄される際に、メモリリークを防ぐことができる。
+
+
+
+% --- 課題2 ---
+\section{課題2}
+\subsection{課題内容}
+課題1で実装したクラスに対して抽出演算子 (\texttt{>>}) と挿入演算子 (\texttt{<<}) を実装して，動作確認を行いなさい． %
+
+\subsection{ソースコード}
+\begin{lstlisting}[caption={課題2のmain.cpp}, language=C++, label={lst:課題2のmain.cpp}]
+#include <iostream>
+#include "Message.h"
+
+int main(int argc, char* argv[]) {
+    Message obj;
+    std::cout << "Input message: ";
+    std::cin >> obj;
+    std::cout << "Output message: " << std::endl;
+    std::cout << obj << std::endl;
+
+    return 0;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={課題2のMessage.h}, language=C++, label={lst:課題2のMessage.h}]
+#pragma once
+#include <iostream>
+
+class Message {
+private:
+    char* message;
+public:
+    Message ();
+    Message (const char* str);
+    ~Message ();
+    const char* getMessage () const;
+    void setMessage (const char* str);
+    friend std::ostream& operator << (std::ostream& os, const Message& m);
+    friend std::istream& operator >> (std::istream& is, Message& m);
+};
+\end{lstlisting}
+
+\begin{lstlisting}[caption={課題2のMessage.cpp}, language=C++, label={lst:課題2のMessage.cpp}]
+#include "Message.h"
+#include <string>
+#include <iostream>
+#include <cstring>
+
+Message::Message () {
+    message = nullptr;
+}
+
+Message::Message (const char* str) {
+    message = new char[strlen(str) + 1];
+    std::strcpy(message, str);
+}
+
+Message::~Message () {
+    delete[] message;
+}
+
+const char* Message::getMessage () const{
+    return message;
+}
+
+void Message::setMessage (const char* str) {
+    delete[] message;
+    message = new char[strlen(str) + 1];
+    std::strcpy(message, str);
+}
+
+std::ostream& operator<< (std::ostream& os, const Message& m) {
+    os << m.getMessage();
+    return os;
+}
+
+std::istream& operator>> (std::istream& is, Message& m) {
+    std::string temp;
+    is >> temp;
+    m.setMessage(temp.c_str());
+    return is;
+}
+\end{lstlisting}
+
+
+\subsection{プログラムに関する説明}
+リスト\ref{lst:課題2のMessage.h}とリスト\ref{lst:課題2のMessage.cpp}より、作成したクラスMessageの説明を以下に示す。\\
+まず、Messageクラスに対して抽出演算子（>>）と挿入演算子（<<）が実装されている。抽出演算子は、標準入力から文字列を読み取り、Messageオブジェクトのメンバ変数messageに格納する。挿入演算子は、Messageオブジェクトのメンバ変数messageの値を標準出力に表示する。\\
+抽出演算子の実装では、まず一時的なstd::string型の変数tempを用意し、標準入力から文字列を読み取る。その後、MessageオブジェクトのsetMessage関数を呼び出し、tempの内容をメンバ変数messageにコピーする。挿入演算子の実装では、MessageオブジェクトのgetMessage関数を呼び出し、メンバ変数messageの値を標準出力に表示する。\\
+これにより、Messageクラスのオブジェクトを標準入力から読み取り、標準出力に表示することができるようになった。抽出演算子と挿入演算子の実装により、Messageクラスのオブジェクトを簡単に入力および出力することができるようになった。
+
+
+% --- 課題3 ---
+\section{課題3}
+\subsection{課題内容}
+Message クラスを継承して，以下の仕様を満たすクラス RepeatMessage を実装して，動作確認を行いなさい．以下の仕様を満たしていれば，コンストラクタやその他のメンバ関数の実装については自由に行って良い． %
+
+\begin{itemize}
+    \item （クラス Message の）メンバ変数 message の値を表示する回数を表すメンバ変数 nloops を持つ %
+    \item 変数 nloops の値だけ変数 message の値を表示する挿入演算子 (\texttt{<<}) を持つ %
+\end{itemize}
+
+\subsection{ソースコード}
+\begin{lstlisting}[caption={課題3のmain.cpp}, language=C++, label={lst:課題3のmain.cpp}]
+#include <iostream>
+#include "RepeatMessage.h"
+
+int main(int argc, char* argv[]) {
+    RepeatMessage obj(3);
+    std::cout << "Input message: ";
+    std::cin >> obj;
+    std::cout << "Output message: " << std::endl;
+    std::cout << obj << std::endl;
+
+    return 0;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption={課題3のRepeatMessage.h}, language=C++, label={lst:課題3のRepeatMessage.h}]
+#pragma once
+#include "Message.h"
+#include <iostream>
+
+class RepeatMessage : public Message {
+private:
+    int nloops;
+public:
+    RepeatMessage();
+    RepeatMessage(int n);
+    
+    friend std::ostream& operator << (std::ostream& os, const RepeatMessage& m);
+};
+\end{lstlisting}
+
+\begin{lstlisting}[caption={課題3のRepeatMessage.cpp}, language=C++, label={lst:課題3のRepeatMessage.cpp}]
+#include "RepeatMessage.h"
+
+RepeatMessage::RepeatMessage() : Message() {
+    nloops = 1;
+}
+
+RepeatMessage::RepeatMessage(int n) : Message() {
+    nloops = n;
+}
+
+std::ostream& operator << (std::ostream& os, const RepeatMessage& m) {
+    for (int i = 0; i < m.nloops; i++) {
+        os << m.getMessage();
+    }
+    return os;
+}
+\end{lstlisting}
+
+Message.cppとMessage.hに関しては、課題2と同様のプログラムを使用しているためここでは省略する。
+
+
+\subsection{プログラムに関する説明}
+
+リスト\ref{lst:課題3のRepeatMessage.h}とリスト\ref{lst:課題3のRepeatMessage.cpp}より、作成したクラスRepeatMessageの説明を以下に示す。\\
+まず、RepeatMessageクラスは、Messageクラスを継承している。これにより、RepeatMessageクラスはMessageクラスのメンバ変数messageとメンバ関数を利用することができる。\\
+次に、RepeatMessageクラスには、メンバ変数nloopsが定義されている。nloopsは、messageの値を表示する回数を表す整数型の変数である。\\
+また、RepeatMessageクラスには、引数を取らないデフォルトコンストラクタと、整数型の引数を取るコンストラクタが定義されている。デフォルトコンストラクタでは、nloopsを1に初期化し、引数付きコンストラクタでは、与えられた整数値をnloopsに格納する。\\
+さらに、RepeatMessageクラスには、挿入演算子（<<）がオーバーロードされている。挿入演算子の実装では、nloopsの値だけ、MessageクラスのgetMessage関数を呼び出してmessageの値を標準出力に表示する。これにより、RepeatMessageクラスのオブジェクトを標準出力に表示する際に、messageの値がnloopsの回数だけ繰り返されて表示されるようになっている。\\
+これにより、RepeatMessageクラスのオブジェクトを標準入力から読み取り、標準出力に表示することができるようになった。継承と演算子のオーバーロードにより、RepeatMessageクラスはMessageクラスの機能を拡張し、messageの値を複数回表示することができるようになった。
+
+
+% --- 自己チェック項目 ---
+\section{自己チェック項目}
+以下の項目について，1から4までの4段階で自己評価しなさい． \\ %
+評価基準：4. 十分に理解した \quad 3. 少し不安が残るが理解した \quad 2. 十分には理解できていない \quad 1. まったく理解できない %
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{11.5cm}|c|}
+\hline
+\textbf{チェック項目} & \textbf{自己評価 (1--4)} \\ \hline
+クラスの実装の仕方を理解した． & 4 \\ \hline %
+private, protected, public などのアクセス指定子の意味と使い方を理解した． & 4 \\ \hline %
+コンストラクタ, デストラクタの実装方法を理解した． & 4 \\ \hline %
+メンバ変数の実装方法を理解した． & 4 \\ \hline %
+クラスに対する演算子の実装方法を理解した． & 4 \\ \hline %
+変数の参照渡しについて理解し，値渡しとの違いを説明できる． & 4 \\ \hline %
+クラスの継承について理解し，既存クラスを継承した別のクラスを実装することができる． & 4 \\ \hline %
+インデント（字下げ）など，一貫したスタイルでプログラムが書ける． & 4 \\ \hline %
+プログラムに適切なコメントを入れることができる． & 4 \\ \hline %
+適切な変数名を用いることができる． & 4 \\ \hline %
+\end{tabular}
+\end{table}
+
+\end{document}

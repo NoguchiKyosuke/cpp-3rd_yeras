@@ -1,0 +1,113 @@
+\documentclass[paper=a4,fontsize=11pt]{jlreq}
+
+% 必要なパッケージ
+\usepackage{luatexja} % LuaLaTeXで日本語を使うため
+\usepackage{listings} % ソースコード表示用
+\usepackage{xcolor}   % ソースコードの色付け用
+
+% ソースコード表示(listings)の設定
+\lstset{
+    basicstyle=\ttfamily\small, % 基本フォント
+    numbers=left,               % 行番号を左に表示 (課題要件)
+    numberstyle=\tiny\color{gray}, % 行番号のスタイル
+    frame=single,               % コードを枠線で囲む
+    tabsize=4,                  % タブ幅
+    breaklines=true,            % 自動改行
+    captionpos=t,               % キャプションの位置(上)
+    showstringspaces=false      % 文字列中の空白を記号にしない
+}
+
+\title{ソフトウェア演習2B 第1回レポート}
+\author{学籍番号: 00000000 \quad 氏名: 豊橋 太郎}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% --- 課題1 ---
+\section{課題1}
+\subsection{課題内容}
+
+リスト\ref{lst:messageh}, \ref{lst:messagecpp}で実装したMessageクラスに対してリスト\ref{lst:maincpp}に示すプログラムを実行したところ、実行結果はリスト\ref{lst:output}のようにエラーが発生した。その理由を説明しなさい。
+
+\begin{lstlisting}[language=C++, caption=Message.cpp, label=lst:messageh]
+1 #in cl u d e <iostream >
+2
+3 cl as s M e ss a g e {
+4 pr iv a t e:
+5 ch ar* m e ss a ge ;
+6
+7 pu bl i c :
+8 Me ss a g e( ) ;
+9 Me ss a g e(co n st c ha r* _ m e ss a ge ) ;
+10 ~M es s a ge ( );
+11
+12 vo id s et M e ss a g e (co n st ch a r* _ m e ss ag e ) ;
+13 ch ar* g e tM e ss a g e (vo i d);
+14 };
+15
+16 st d: : i st r e a m & operator > >(st d :: i st r e am & stream , Me s sa g e & ob j );
+17 st d: : o st r e a m & operator < <(st d :: o st r e am & stream , Me s sa g e & ob j );
+
+
+
+
+\subsection{ソースコード}
+% 言語を指定してソースコードを貼り付けます（例: C++）
+\begin{lstlisting}[language=C++, caption=Message.cpp]
+#include <iostream>
+#include "Message.h"
+
+int main (int argc, char *argv[]) {
+    Message obj;
+    obj.setMessage("Hello World.");
+    std::cout << obj.getMessage() << std::endl;
+    return 0;
+}
+\end{lstlisting}
+
+\subsection{プログラムに関する説明}
+% プログラムの解説やアピールポイントを記述します。
+（作成したプログラムに関する説明、工夫した点、アピールポイントなどを記述）
+
+
+% --- 課題2 ---
+\section{課題2}
+\subsection{課題内容}
+（課題内容を記述）
+
+\subsection{ソースコード}
+\begin{lstlisting}[language=C++, caption=main.cpp (課題2)]
+// 課題2のソースコードを記述
+\end{lstlisting}
+
+\subsection{プログラムに関する説明}
+（作成したプログラムに関する説明を記述）
+
+
+% --- 課題3 ---
+\section{課題3}
+\subsection{課題内容}
+（課題内容を記述）
+
+\subsection{ソースコード}
+\begin{lstlisting}[language=C++, caption=main.cpp (課題3)]
+// 課題3のソースコードを記述
+\end{lstlisting}
+
+\subsection{プログラムに関する説明}
+（作成したプログラムに関する説明を記述）
+
+
+% --- 課題4 (チェック項目) ---
+\section{課題4 チェック項目への回答}
+% 課題資料の最後にあるチェック項目への回答を記述します。
+\begin{enumerate}
+    \item \textbf{private, protected, publicの違いについて} \\
+    （ここへ回答を記述します）
+    \item \textbf{その他のチェック項目} \\
+    （ここへ回答を記述します）
+\end{enumerate}
+
+\end{document}

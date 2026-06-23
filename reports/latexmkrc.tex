@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+# LuaLaTeXを使用する設定
+$lualatex = 'lualatex -file-line-error -halt-on-error -interaction=nonstopmode %O %S';
+
+# PDFモードをLuaLaTeXに設定 (4 = LuaLaTeX)
+$pdf_mode = 4;
+
+# 参考文献や索引作成ツールの設定 (必要に応じて)
+$biber = 'biber %O %S';
+$makeindex = 'upmendex %O -o %D %S';
+
+# プレビューアー関連の設定 (環境に合わせて変更可能)
+$pvc_view_file_via_temporary = 0;
+
+# 一時ファイルのクリーンアップ設定
+$clean_ext = "%R.synctex.gz %R.fdb_latexmk %R.fls %R.aux %R.log %R.toc %R.out";
