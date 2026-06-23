@@ -1,39 +1,34 @@
-#include "Message.h"
+#include <stdlib.h>
+#include <string.h>
 #include <string>
-#include <iostream>
-#include <cstring>
+#include "Message.h"
 
-Message::Message () {
-    message = nullptr;
+Message::Message(): message() {
 }
 
-Message::Message (const char* str) {
-    message = new char[strlen(str) + 1];
-    std::strcpy(message, str);
+Message::Message(const std::string& message_string) {
+  message[0] = new char [message_string.length() + 1];
+  strcpy (message[0], message_string.c_str());
 }
 
-Message::~Message () {
-    delete[] message;
+// コピーコンストラクタを追加
+Message::Message(const std::vector<std::string>& message_vector) {
+  message = new char [message_vector.size() + 1];
+  for (size_t i = 0; i < message_vector.size(); ++i) {
+    message[i] = new char [message_vector[i].length() + 1];
+    strcpy (message[i], message_vector[i].c_str());
+  }
 }
 
-const char* Message::getMessage () const{
-    return message;
+Message::~Message() {
+  if (message != nullptr) delete [] message;
 }
 
-void Message::setMessage (const char* str) {
-    delete[] message;
-    message = new char[strlen(str) + 1];
-    std::strcpy(message, str);
-}
+// void Message::setMessage (const char* _message) {
+//   if (message != nullptr) delete [] message;
+//   message.push_back(std::string(_message));
+// }
 
-std::ostream& operator<< (std::ostream& os, const Message& m) {
-    os << m.getMessage();
-    return os;
-}
-
-std::istream& operator>> (std::istream& is, Message& m) {
-    std::string temp;
-    is >> temp;
-    m.setMessage(temp.c_str());
-    return is;
-}
+// char* Message::getMessage (int message_id) {
+//   return message[message_id];
+// }

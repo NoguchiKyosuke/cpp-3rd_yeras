@@ -1,15 +1,19 @@
 #pragma once
-#include <iostream>
+#include <string>
+#include <vector>
 
 class Message {
 private:
-    char* message;
+  std::vector<std::string> message;
+
 public:
-    Message ();
-    Message (const char* str);
-    ~Message ();
-    const char* getMessage () const;
-    void setMessage (const char* str);
-    friend std::ostream& operator << (std::ostream& os, const Message& m);
-    friend std::istream& operator >> (std::istream& is, Message& m);
+  Message();
+  Message(const std::string& message_string);
+  Message(const std::vector<std::string>& message_vector);
+  ~Message();
+
+  // void addMessage (const std::string& message_string);
+  // std::string getMessage (int message_id);
+  // void showAllMessages (void);
+  // int getNMessages(void);
 };

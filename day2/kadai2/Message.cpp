@@ -1,39 +1,48 @@
-#include "Message.h"
+#include <stdlib.h>
+#include <string.h>
 #include <string>
-#include <iostream>
-#include <cstring>
+#include "Message.h"
 
-Message::Message () {
+Message::Message(): message(nullptr) {
+}
+
+Message::Message(const char* _message) {
+  message = new char [strlen(_message) + 1];
+  strcpy (message, _message);
+}
+
+// コピーコンストラクタを追加
+Message::Message(const Message& obj){
+  if(obj.message != nullptr){
+    message = new char [strlen(obj.message) + 1];
+    strcpy (message, obj.message);
+  } else {
     message = nullptr;
+  }
 }
 
-Message::Message (const char* str) {
-    message = new char[strlen(str) + 1];
-    std::strcpy(message, str);
+Message::~Message() {
+  if (message != nullptr) delete [] message;
 }
 
-Message::~Message () {
-    delete[] message;
+void Message::setMessage (const char* _message) {
+  if (message != nullptr) delete [] message;
+  message = new char [strlen(_message) + 1];
+  strcpy (message, _message);
 }
 
-const char* Message::getMessage () const{
-    return message;
+char* Message::getMessage (void) {
+  return message;
 }
 
-void Message::setMessage (const char* str) {
-    delete[] message;
-    message = new char[strlen(str) + 1];
-    std::strcpy(message, str);
+std::istream& operator>>(std::istream& stream, Message& obj) {
+  std::string buffer;
+  std::getline(stream, buffer);
+  obj.setMessage(buffer.c_str());
+  return stream;
 }
 
-std::ostream& operator<< (std::ostream& os, const Message& m) {
-    os << m.getMessage();
-    return os;
-}
-
-std::istream& operator>> (std::istream& is, Message& m) {
-    std::string temp;
-    is >> temp;
-    m.setMessage(temp.c_str());
-    return is;
+std::ostream& operator<<(std::ostream& stream, Message& obj) {
+  stream << obj.getMessage();
+  return stream;
 }

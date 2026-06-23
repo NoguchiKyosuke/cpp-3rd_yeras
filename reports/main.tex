@@ -32,58 +32,200 @@
 リスト\ref{lst:messageh}, \ref{lst:messagecpp}で実装したMessageクラスに対してリスト\ref{lst:maincpp}に示すプログラムを実行したところ、実行結果はリスト\ref{lst:output}のようにエラーが発生した。その理由を説明しなさい。
 
 \begin{lstlisting}[language=C++, caption=Message.cpp, label=lst:messageh]
-1 #in cl u d e <iostream >
-2
-3 cl as s M e ss a g e {
-4 pr iv a t e:
-5 ch ar* m e ss a ge ;
-6
-7 pu bl i c :
-8 Me ss a g e( ) ;
-9 Me ss a g e(co n st c ha r* _ m e ss a ge ) ;
-10 ~M es s a ge ( );
-11
-12 vo id s et M e ss a g e (co n st ch a r* _ m e ss ag e ) ;
-13 ch ar* g e tM e ss a g e (vo i d);
-14 };
-15
-16 st d: : i st r e a m & operator > >(st d :: i st r e am & stream , Me s sa g e & ob j );
-17 st d: : o st r e a m & operator < <(st d :: o st r e am & stream , Me s sa g e & ob j );
+#include <stdlib.h>
+#include <string.h>
+#include <string>
+#include "Message.h"
 
+Message::Message(): message(nullptr) {
+}
 
+Message::Message(const char* _message) {
+  message = new char [strlen(_message) + 1];
+  strcpy (message, _message);
+}
 
+Message::~Message() {
+  if (message != nullptr) delete [] message;
+}
 
-\subsection{ソースコード}
-% 言語を指定してソースコードを貼り付けます（例: C++）
-\begin{lstlisting}[language=C++, caption=Message.cpp]
+void Message::setMessage (const char* _message) {
+  if (message != nullptr) delete [] message;
+  message = new char [strlen(_message) + 1];
+  strcpy (message, _message);
+}
+
+char* Message::getMessage (void) {
+  return message;
+}
+
+std::istream& operator>>(std::istream& stream, Message& obj) {
+  std::string buffer;
+  std::getline(stream, buffer);
+  obj.setMessage(buffer.c_str());
+  return stream;
+}
+
+std::ostream& operator<<(std::ostream& stream, Message& obj) {
+  stream << obj.getMessage();
+  return stream;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption=Message.h, label=lst:messagecpp]
+#include <iostream>
+
+class Message {
+private:
+  char* message;
+
+public:
+  Message();
+  Message(const char* _message);
+  ~Message();
+
+  void setMessage (const char* _message);
+  char* getMessage (void);
+};
+
+std::istream &operator>>(std::istream& stream, Message& obj);
+std::ostream &operator<<(std::ostream& stream, Message& obj);
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption=main.cpp, label=lst:maincpp]
 #include <iostream>
 #include "Message.h"
 
 int main (int argc, char *argv[]) {
-    Message obj;
-    obj.setMessage("Hello World.");
-    std::cout << obj.getMessage() << std::endl;
-    return 0;
+  Message obj1("Hello World.");
+  Message obj2 = obj1;
+  std::cout << obj2 << std::endl;
+
+  return 0;
 }
 \end{lstlisting}
 
-\subsection{プログラムに関する説明}
-% プログラムの解説やアピールポイントを記述します。
-（作成したプログラムに関する説明、工夫した点、アピールポイントなどを記述）
 
+また、以下にprintf関数を用いて、コピーしたオブジェクトのメンバ変数messageのそれぞれのアドレスを調べた。その際のmain.cppの変更点をリスト\ref{lst:edit_maincpp}に示す。実行結果をリスト\ref{lst:output}に示す。
+
+\begin{lstlisting}[language=C++, caption=main.cpp (アドレス確認用), label=lst:edit_maincpp]
+...
+
+  std::cout << obj2 << std::endl;
+  printf("obj1: %p\n", (void*)obj1.getMessage());   //追加
+  printf("obj2: %p\n", (void*)obj2.getMessage());   //追加
+
+  return 0;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash, caption=実行結果, label=lst:output]
+$ ./main
+Hello World.
+obj1: 0xa000005c0
+obj2: 0xa000005c0
+Aborted
+\end{lstlisting}
+
+\subsection{プログラムに関する説明}
+
+リスト\ref{lst:output}の実行結果より、abortedによってエラーで終了していることがわかる。また、printfの出力よりobj1とobj2のmessageメンバ変数が同じアドレスを指していることがわかる。よって、プログラム終了時のabortedによるエラーは二重解放の発生が原因であることがわかる。\\
+リスト\ref{lst:messageh}とリスト\ref{lst:messagecpp}で実装したMessageクラスにおいて、コピーコンストラクタの実装をしていないため、デフォルトのコピーコンストラクタが呼び出されている。そのため、メンバ変数messageはポインタ型のため、obj2のmessageはobj1のmessageメモリをコピーしてしまう。そのため、メモリを解放しようとした際にメモリを二重で開放してしまうと考えられる。\\
+
+リスト\ref{lst:edit_maincpp}のgetMessage()の呼び出し時に(void*)を明示したのは、printf関数のフォーマット指定子に\%pを使用する際に、引数として渡すポインタ型の値は(void*)であるからである。(void*)をつけなくても動作はするが、正確には方の不整合が発生してしまっているため、明示的に(void*)をつけている。
 
 % --- 課題2 ---
 \section{課題2}
 \subsection{課題内容}
-（課題内容を記述）
+Messageクラスに対するコピーコンストラクタを実装して、リスト\ref{lst:maincpp}のプログラムを実行してもエラーがでないようにしなさい.
 
 \subsection{ソースコード}
-\begin{lstlisting}[language=C++, caption=main.cpp (課題2)]
-// 課題2のソースコードを記述
+
+以下のリスト\ref{lst:messageh2}とリスト\ref{lst:messagecpp2}にコピーコンストラクタを実装したMessageクラスのソースコードを示す。ただし、ほとんど課題1と同じソースを使用しているため、変更部分をピックアップして示す。
+
+\begin{lstlisting}[language=C++, caption=Message.h (課題2), label=lst:messageh2]
+...
+
+public:
+  Message();
+  Message(const char* _message);
+  Message(const Message& obj); // コピーコンストラクタを追加
+  ~Message();
+
+  ...
 \end{lstlisting}
 
+\begin{lstlisting}[language=C++, caption=Message.cpp (課題2), label=lst:messagecpp2]
+...
+
+Message::Message(const char* _message) {
+  message = new char [strlen(_message) + 1];
+  strcpy (message, _message);
+}
+
+// コピーコンストラクタを追加
+Message::Message(const Message& obj){
+  if(obj.message != nullptr){
+    message = new char [strlen(obj.message) + 1];
+    strcpy (message, obj.message);
+  } else {
+    message = nullptr;
+  }
+}
+
+Message::~Message() {
+  if (message != nullptr) delete [] message;
+}
+...
+\end{lstlisting}
+
+プログラムの実行においては、リスト\ref{lst:maincpp}のプログラムをそのまま使用した。
+以下にその実行結果をリスト\ref{lst:output2}に示す。
+
+\begin{lstlisting}[language=bash, caption=実行結果 (課題2), label=lst:output2]
+$ ./main
+Hello World.
+obj1: 0xa000005c0
+obj2: 0xa00000490
+\end{lstlisting}
+
+
 \subsection{プログラムに関する説明}
-（作成したプログラムに関する説明を記述）
+リスト\ref{lst:output2}の実行結果より、Abortedによるエラーが発生していないことがわかる。また、printfの出力よりobj1とobj2のmessageメンバ変数が異なるアドレスを指していることがわかる。よって、二重解放のエラーが発生していないことがわかる。\\
+リスト\ref{lst:messageh2}とリスト\ref{lst:messagecpp2}での変更点より、本課題ではMessageクラスにコピーコンストラクタを実装した。コピーコンストラクタ内では、コピー元のオブジェクトのメンバ変数messageの文字列をコピーして、コピー先で新しく確保したメモリに格納している。そうすることで、コピー元とコピー先のオブジェクトのメンバ変数messageが異なるアドレスを指すようになり、二重解放のエラーが発生しないようになった。\\
+
+\begin{lstlisting}[language=C++, caption=Message.cpp (課題2のコピーコンストラクタのエラー例), label=lst:messagecpp2_err]
+...
+// if分を削除
+Message::Message(const Message& obj){
+  message = new char [strlen(obj.message) + 1];
+  strcpy (message, obj.message);
+}
+...
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption=main.cpp (課題2のコピーコンストラクタのエラー例), label=lst:edit_maincpp2]
+#include <iostream>
+#include "Message.h"
+
+int main (int argc, char *argv[]) {
+  Message obj1(nullptr);
+  Message obj2(obj1);
+  std::cout << obj2 << std::endl;
+  printf("obj1: %p\n", (void*)obj1.getMessage());
+  printf("obj2: %p\n", (void*)obj2.getMessage());
+
+  return 0;
+}
+\end{lstlisting}
+
+
+\begin{lstlisting}[language=C++, caption=実行結果 (segmentation fault), label=lst:segmentation_fault]
+$ ./main
+Segmentation fault
+\end{lstlisting}
+
+コピーコンストラクタ内で、if分によってコピー元のメンバMessageのオブジェクトmessageがnullptrである場合の処理を実装している。リスト\ref{lst:messagecpp2_err}のようにif分の処理を追加しないと、リスト\ref{lst:messagemain2_err}のようにmain関数でデフォルトコンストラクタを呼び出してしまうと、コピー先のオブジェクトのメンバ変数messageが不定値を指すことになってしまうため、実行結果\ref{lst:segmentation_fault}のようにsegmentation faultが発生するため、この処理を追加している。
 
 
 % --- 課題3 ---

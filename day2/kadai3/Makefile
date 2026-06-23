@@ -1,5 +1,5 @@
 PROGRAM = main
-OBJS = RepeatMessage.o Message.o main.o
+OBJS = Message.o main.o
 
 CXX = g++
 CFLAGS = -Wall -g -O0 -std=c++11

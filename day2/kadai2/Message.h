@@ -1,15 +1,19 @@
-#pragma once
 #include <iostream>
 
 class Message {
 private:
-    char* message;
+  char* message;
+
 public:
-    Message ();
-    Message (const char* str);
-    ~Message ();
-    const char* getMessage () const;
-    void setMessage (const char* str);
-    friend std::ostream& operator << (std::ostream& os, const Message& m);
-    friend std::istream& operator >> (std::istream& is, Message& m);
+  Message();
+  // コピーコンストラクタを追加
+  Message(const Message& obj);
+  Message(const char* _message);
+  ~Message();
+
+  void setMessage (const char* _message);
+  char* getMessage (void);
 };
+
+std::istream &operator>>(std::istream& stream, Message& obj);
+std::ostream &operator<<(std::ostream& stream, Message& obj);
