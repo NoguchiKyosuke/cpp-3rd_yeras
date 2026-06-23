@@ -1,15 +1,13 @@
 #pragma once
-
-#include <string>
 #include <iostream>
 
 class Message {
-friend class RepeatMessage;
 private:
-    const char* message;
+    char* message;
 public:
     Message ();
     Message (const char* str);
+    ~Message ();
     const char* getMessage () const;
     void setMessage (const char* str);
     friend std::ostream& operator << (std::ostream& os, const Message& m);

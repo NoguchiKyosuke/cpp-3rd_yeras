@@ -5,7 +5,12 @@ Message::Message () {
 }
 
 Message::Message (const char* str) {
-    message = str;
+    message = new char[strlen(str) + 1];
+    std::strcpy(message, str);
+}
+
+Message::~Message () {
+    delete[] message;
 }
 
 const char* Message::getMessage () {
@@ -13,5 +18,7 @@ const char* Message::getMessage () {
 }
 
 void Message::setMessage (const char* str) {
-    message = str;
+    delete[] message;
+    message = new char[strlen(str) + 1];
+    std::strcpy(message, str);
 }

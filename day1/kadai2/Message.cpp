@@ -1,13 +1,19 @@
 #include "Message.h"
 #include <string>
 #include <iostream>
+#include <cstring>
 
 Message::Message () {
     message = nullptr;
 }
 
 Message::Message (const char* str) {
-    message = str;
+    message = new char[strlen(str) + 1];
+    std::strcpy(message, str);
+}
+
+Message::~Message () {
+    delete[] message;
 }
 
 const char* Message::getMessage () const{
@@ -15,7 +21,9 @@ const char* Message::getMessage () const{
 }
 
 void Message::setMessage (const char* str) {
-    message = str;
+    delete[] message;
+    message = new char[strlen(str) + 1];
+    std::strcpy(message, str);
 }
 
 std::ostream& operator<< (std::ostream& os, const Message& m) {
@@ -24,7 +32,7 @@ std::ostream& operator<< (std::ostream& os, const Message& m) {
 }
 
 std::istream& operator>> (std::istream& is, Message& m) {
-    static std::string temp;
+    std::string temp;
     is >> temp;
     m.setMessage(temp.c_str());
     return is;

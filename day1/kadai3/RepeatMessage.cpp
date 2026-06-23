@@ -1,18 +1,16 @@
 #include "RepeatMessage.h"
-#include <string>
 
 RepeatMessage::RepeatMessage() : Message() {
-    n_roop = 1;
+    n_loop = 1;
 }
 
 RepeatMessage::RepeatMessage(int n) : Message() {
-    n_roop = n;
+    n_loop = n;
 }
 
-const char* RepeatMessage::getMessage() const {
-    std::string temp;
-    for(int i = 0; i < n_roop; i++) {
-        temp += "abc";
+std::ostream& operator << (std::ostream& os, const RepeatMessage& m) {
+    for (int i = 0; i < m.n_loop; i++) {
+        os << m.getMessage();
     }
-    return temp.c_str();
+    return os;
 }

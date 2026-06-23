@@ -1,10 +1,13 @@
+#pragma once
 #include "Message.h"
+#include <iostream>
 
 class RepeatMessage : public Message {
 private:
-    int n_roop;
+    int n_loop;
 public:
     RepeatMessage();
     RepeatMessage(int n);
-    const char* getMessage() const;  
+    
+    friend std::ostream& operator << (std::ostream& os, const RepeatMessage& m);
 };
