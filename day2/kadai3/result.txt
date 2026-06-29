@@ -12,4 +12,3 @@ Message 2
 Message 3
 getNMessages()の呼び出しのテスト
 Number of messages in obj1: 2
-デストラクタのテスト
