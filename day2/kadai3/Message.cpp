@@ -7,14 +7,11 @@ Message::Message(const std::string& message_string) {
   message.push_back(message_string);
 }
 
-// // コピーコンストラクタを追加
-// Message::Message(const std::vector<std::string>& message_vector) {
-//   message = new char [message_vector.size() + 1];
-//   for (size_t i = 0; i < message_vector.size(); ++i) {
-//     message[i] = new char [message_vector[i].length() + 1];
-//     strcpy (message[i], message_vector[i].c_str());
-//   }
-// }
+Message::Message(const std::vector<std::string>& message_vector) {
+  for (size_t i = 0; i < message_vector.size(); ++i) {
+    message.push_back(message_vector[i]);
+  }
+}
 
 // Message::~Message() {
 //   if (message != nullptr) delete [] message;
