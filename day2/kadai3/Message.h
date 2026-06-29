@@ -8,7 +8,7 @@ private:
 
 public:
   Message();
-  // Message(const std::string& message_string);
+  Message(const std::string& message_string);
   // Message(const std::vector<std::string>& message_vector);
   // ~Message();
 

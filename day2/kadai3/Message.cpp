@@ -4,13 +4,11 @@
 #include "Message.h"
 
 Message::Message(): message() {
-  message.push_back("");
 }
 
-// Message::Message(const std::string& message_string) {
-//   message[0] = new char [message_string.length() + 1];
-//   strcpy (message[0], message_string.c_str());
-// }
+Message::Message(const std::string& message_string) {
+  message[0].push_back(message_string);
+}
 
 // // コピーコンストラクタを追加
 // Message::Message(const std::vector<std::string>& message_vector) {
