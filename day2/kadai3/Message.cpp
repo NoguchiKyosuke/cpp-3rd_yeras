@@ -14,7 +14,8 @@ Message::Message(const std::vector<std::string>& message_vector) {
 }
 
 Message::~Message() {
-  delete [] message;
+  message.clear();
+  message.shrink_to_fit();
 }
 
 // void Message::setMessage (const char* _message) {
