@@ -3,7 +3,7 @@
 #include "Message.h"
 
 int main (int argc, char *argv[]) {
-  printf("オブジェクトの生成とshowAllMessages()の呼び出しのテスト\n");
+  printf("コンストラクタの呼び出しとshowAllMessages()のテスト\n");
   Message obj1("Hello, World!");
   obj1.showAllMessages();
 
@@ -15,7 +15,7 @@ int main (int argc, char *argv[]) {
   std::cout << "Message 0: " << obj1.getMessage(0) << std::endl;
   std::cout << "Message 1: " << obj1.getMessage(1) << std::endl;
 
-  printf("showAllMessages()の呼び出しのテスト\n");
+  printf("vectorクラスを引数にとるオブジェクトの生成の呼び出しのテスト\n");
   std::vector<std::string> messages = {"Message 1", "Message 2", "Message 3"};
   Message obj2(messages);
   obj2.showAllMessages();
