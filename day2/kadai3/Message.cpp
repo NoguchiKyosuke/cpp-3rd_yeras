@@ -7,7 +7,7 @@ Message::Message(): message() {
 }
 
 Message::Message(const std::string& message_string) {
-  message[0].push_back(message_string);
+  message.push_back(message_string);
 }
 
 // // コピーコンストラクタを追加
