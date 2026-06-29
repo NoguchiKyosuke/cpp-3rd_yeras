@@ -13,9 +13,9 @@ Message::Message(const std::vector<std::string>& message_vector) {
   }
 }
 
-// Message::~Message() {
-//   if (message != nullptr) delete [] message;
-// }
+Message::~Message() {
+  if (message != nullptr) delete [] message;
+}
 
 // void Message::setMessage (const char* _message) {
 //   if (message != nullptr) delete [] message;
