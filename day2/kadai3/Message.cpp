@@ -7,15 +7,10 @@ Message::Message(const std::string& message_string) {
   message.push_back(message_string);
 }
 
-Message::Message(const std::vector<std::string>& message_vector) {
-  for (size_t i = 0; i < message_vector.size(); ++i) {
-    message.push_back(message_vector[i]);
-  }
+Message::Message(const std::vector<std::string>& message_vector) : message(message_vector) {
 }
 
 Message::~Message() {
-  message.clear();
-  message.shrink_to_fit();
 }
 
 void Message::addMessage (const std::string& message_string) {

@@ -23,9 +23,5 @@ int main (int argc, char *argv[]) {
   printf("getNMessages()の呼び出しのテスト\n");
   std::cout << "Number of messages in obj1: " << obj1.getNMessages() << std::endl;
 
-  printf("デストラクタのテスト\n");
-  obj1.~Message();
-  obj1.showAllMessages();
-
   return 0;
 }
