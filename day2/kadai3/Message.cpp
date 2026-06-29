@@ -18,17 +18,20 @@ Message::~Message() {
   message.shrink_to_fit();
 }
 
-// void Message::setMessage (const char* _message) {
-//   if (message != nullptr) delete [] message;
-//   message.push_back(std::string(_message));
-// }
+void Message::addMessage (const std::string& message_string) {
+  message.push_back(message_string);
+}
 
-// char* Message::getMessage (int message_id) {
-//   return message[message_id];
-// }
+std::string Message::getMessage (int message_id) {
+  return message[message_id];
+}
 
 void Message::showAllMessages (void) {
   for (size_t i = 0; i < message.size(); ++i) {
     std::cout << message[i] << std::endl;
   }
+}
+
+int Message::getNMessages(void) {
+  return message.size();
 }
