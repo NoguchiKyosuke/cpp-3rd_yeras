@@ -14,6 +14,6 @@ public:
 
   // void addMessage (const std::string& message_string);
   // std::string getMessage (int message_id);
-  // void showAllMessages (void);
+  void showAllMessages (void);
   // int getNMessages(void);
 };

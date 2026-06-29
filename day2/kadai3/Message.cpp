@@ -31,3 +31,9 @@ Message::Message(const std::string& message_string) {
 // char* Message::getMessage (int message_id) {
 //   return message[message_id];
 // }
+
+void Message::showAllMessages (void) {
+  for (size_t i = 0; i < message.size(); ++i) {
+    std::cout << message[i] << std::endl;
+  }
+}
