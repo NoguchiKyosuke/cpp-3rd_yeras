@@ -1,17 +1,17 @@
-[k263354@ydev04 kadai1]$ ls
+$ ls
 Makefile  Message.cpp  Message.h  main.cpp
-[k263354@ydev04 kadai1]$ g++ -c Message.cpp
-[k263354@ydev04 kadai1]$ g++ -c main.cpp
-[k263354@ydev04 kadai1]$ ls
+$ g++ -c Message.cpp
+$ g++ -c main.cpp
+$ ls
 Makefile  Message.cpp  Message.h  Message.o  main.cpp  main.o
-[k263354@ydev04 kadai1]$ ar rcs libMessage.a Message.o
-[k263354@ydev04 kadai1]$ ls
+$ ar rcs libMessage.a Message.o
+$ ls
 Makefile  Message.cpp  Message.h  Message.o  libMessage.a  main.cpp  main.o
-[k263354@ydev04 kadai1]$ g++ main.cpp -L. -lMessage -o main
-[k263354@ydev04 kadai1]$ ls
+$ g++ main.cpp -L. -lMessage -o main
+$ ls
 Makefile     Message.h  libMessage.a  main.cpp
 Message.cpp  Message.o  main          main.o
-[k263354@ydev04 kadai1]$ ./main
+$ ./main
 コンストラクタの呼び出しとshowAllMessages()のテスト
 Hello, World!
 addMessage()の呼び出しのテスト
