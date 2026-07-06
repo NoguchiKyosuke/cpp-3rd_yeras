@@ -1,0 +1,29 @@
+$ ls
+Makefile  Message.cpp  Message.h  main.cpp
+$ g++ -c Message.cpp
+$ g++ -c main.cpp
+$ ls
+Makefile  Message.cpp  Message.h  Message.o  main.cpp  main.o
+$ ar rcs libMessage.a Message.o
+$ ls
+Makefile  Message.cpp  Message.h  Message.o  libMessage.a  main.cpp  main.o
+$ g++ main.cpp -L. -lMessage -o main
+$ ls
+Makefile     Message.h  libMessage.a  main.cpp
+Message.cpp  Message.o  main          main.o
+$ ./main
+コンストラクタの呼び出しとshowAllMessages()のテスト
+Hello, World!
+addMessage()の呼び出しのテスト
+Hello, World!
+additional message.
+getMessage()の呼び出しのテスト
+Message 0: Hello, World!
+Message 1: additional message.
+vectorクラスを引数にとるオブジェクトの生成の呼び出しのテスト
+Message 1
+Message 2
+Message 3
+getNMessages()の呼び出しのテスト
+Number of messages in obj1: 2
+
