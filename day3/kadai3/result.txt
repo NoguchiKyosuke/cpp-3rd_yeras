@@ -1,7 +1,7 @@
-[k263354@ydev02 static]$ ls
+$ ls
 Makefile     Message.h  libMessage.a  main.cpp  result.txt
 Message.cpp  Message.o  main          main.o
-[k263354@ydev02 static]$ ./main
+$ ./main
 コンストラクタの呼び出しとshowAllMessages()のテスト
 Hello, World!
 addMessage()の呼び出しのテスト
@@ -16,8 +16,8 @@ Message 2
 Message 3
 getNMessages()の呼び出しのテスト
 Number of messages in obj1: 2
-[k263354@ydev02 static]$ rm libMessage.a 
-[k263354@ydev02 static]$ ./main
+$ rm libMessage.a 
+$ ./main
 コンストラクタの呼び出しとshowAllMessages()のテスト
 Hello, World!
 addMessage()の呼び出しのテスト
@@ -32,12 +32,13 @@ Message 2
 Message 3
 getNMessages()の呼び出しのテスト
 Number of messages in obj1: 2
-[k263354@ydev02 static]$ cd ../dynamic/
-[k263354@ydev02 dynamic]$ cp ../../kadai2/* ./
-[k263354@ydev02 dynamic]$ ls
+
+
+
+$ ls
 Makefile     Message.h  libMessage.so  main.cpp
 Message.cpp  Message.o  main           results.txt
-[k263354@ydev02 dynamic]$ ./main
+$ ./main
 コンストラクタの呼び出しとshowAllMessages()のテスト
 Hello, World!
 addMessage()の呼び出しのテスト
@@ -52,7 +53,7 @@ Message 2
 Message 3
 getNMessages()の呼び出しのテスト
 Number of messages in obj1: 2
-[k263354@ydev02 dynamic]$ rm libMessage.so 
-[k263354@ydev02 dynamic]$ ./main
+$ rm libMessage.so 
+$ ./main
 ./main: error while loading shared libraries: libMessage.so: cannot open shared object file: No such file or directory
 
