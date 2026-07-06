@@ -1,0 +1,49 @@
+[k263354@ydev02 kadai2]$ ls
+Makefile  Message.cpp  Message.h  main.cpp
+[k263354@ydev02 kadai2]$ g++ -c Message.cpp
+[k263354@ydev02 kadai2]$ ls
+Makefile  Message.cpp  Message.h  Message.o  main.cpp
+[k263354@ydev02 kadai2]$ g++ -shared -o libMessage.so Message.o
+/bin/ld: Message.o: relocation R_X86_64_32 against symbol `_ZSt4cout@@GLIBCXX_3.4' can not be used when making a shared object。 -fPIC を付けて再コンパイルしてください。
+collect2: エラー: ld はステータス 1 で終了しました
+[k263354@ydev02 kadai2]$ g++ -c Message.cpp -fPIC
+[k263354@ydev02 kadai2]$ g++ -shared -o libMessage.so Message.o
+[k263354@ydev02 kadai2]$ ls
+Makefile  Message.cpp  Message.h  Message.o  libMessage.so  main.cpp
+[k263354@ydev02 kadai2]$ g++ main.cpp -I. -L. -lMessage
+[k263354@ydev02 kadai2]$ ./main
+bash: ./main: そのようなファイルやディレクトリはありません
+[k263354@ydev02 kadai2]$ ls
+Makefile  Message.cpp  Message.h  Message.o  a.out  libMessage.so  main.cpp
+[k263354@ydev02 kadai2]$ ./a.out
+コンストラクタの呼び出しとshowAllMessages()のテスト
+Hello, World!
+addMessage()の呼び出しのテスト
+Hello, World!
+additional message.
+getMessage()の呼び出しのテスト
+Message 0: Hello, World!
+Message 1: additional message.
+vectorクラスを引数にとるオブジェクトの生成の呼び出しのテスト
+Message 1
+Message 2
+Message 3
+getNMessages()の呼び出しのテスト
+Number of messages in obj1: 2
+[k263354@ydev02 kadai2]$ g++ main.cpp -I. -L. -lMessage -o main
+[k263354@ydev02 kadai2]$ ./main
+コンストラクタの呼び出しとshowAllMessages()のテスト
+Hello, World!
+addMessage()の呼び出しのテスト
+Hello, World!
+additional message.
+getMessage()の呼び出しのテスト
+Message 0: Hello, World!
+Message 1: additional message.
+vectorクラスを引数にとるオブジェクトの生成の呼び出しのテスト
+Message 1
+Message 2
+Message 3
+getNMessages()の呼び出しのテスト
+Number of messages in obj1: 2
+
