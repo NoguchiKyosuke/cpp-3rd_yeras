@@ -1,21 +1,17 @@
-[k263354@ydev05 kadai1]$ g++ main.cpp `pkg-config -cflags eigen3` -o main
-[k263354@ydev05 kadai1]$ ./main
-terminate called after throwing an instance of 'std::logic_error'
-  what():  basic_string::_M_construct null not valid
-中止 (コアダンプ)
-[k263354@ydev05 kadai1]$ ./main 0 1 5 1
+$ g++ main.cpp `pkg-config -cflags eigen3` -o main
+$ ./main 0 1 5 1
 -0.549746
 -1.40287
 1.58275
 -1.04515
 0.257594
-[k263354@ydev05 kadai1]$ ./main 0 1 5 2
+$ ./main 0 1 5 2
 -0.0225647
 0.662448
 -0.88749
 -0.460892
 -0.693841
-[k263354@ydev05 kadai1]$ ./main 0 1 5 1
+$ ./main 0 1 5 1
 -0.549746
 -1.40287
 1.58275
