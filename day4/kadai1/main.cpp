@@ -8,8 +8,7 @@ int main (int argc, char *argv[]) {
   double variance = 1.0;
   int N[] = {10, 100, 1000, 10000, 100000};
 
-  std::random_device rd;
-  std::uint32_t seed = rd();
+  std::uint32_t seed = std::atoi(argv[1]);
   std::mt19937 method(seed);
 
   std::normal_distribution<double> dist(average, variance);
