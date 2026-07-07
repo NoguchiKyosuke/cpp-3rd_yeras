@@ -8,7 +8,8 @@ int main (int argc, char *argv[]) {
   double variance = 1.0;
   int N[] = {10, 100, 1000, 10000, 100000};
 
-  std::uint32_t seed = std::chrono::system_clock::now().time_since_epoch().count();
+  std::random_device rd;
+  std::uint32_t seed = rd();
   std::mt19937 method(seed);
 
   std::normal_distribution<double> dist(average, variance);
