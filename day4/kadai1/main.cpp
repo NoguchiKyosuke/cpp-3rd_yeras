@@ -3,19 +3,22 @@
 #include <random>
 
 int main (int argc, char *argv[]) {
-  // 平均値0, 分散1として定義
-  double average = 0.0;
-  double variance = 1.0;
-  int N[] = {10, 100, 1000, 10000, 100000};
+  // 平均値, 分散、データ数をコマンドライン引数から取得
+  double ave = std::stod(argv[1]);
+  double sd = std::stod(argv[2]);
+  int N = std::atoi(argv[3]);
 
-  std::uint32_t seed = std::atoi(argv[1]);
+  // シード値を取得し、乱数生成器を初期化
+  std::uint32_t seed = std::atoi(argv[4]);
   std::mt19937 method(seed);
 
-  std::normal_distribution<double> dist(average, variance);
+  // 正規分布の乱数生成器を初期化
+  std::normal_distribution<double> dist(ave, sd);
 
-  double val = dist(method);
-
-  printf("平均値: %f, 分散: %f, N: %d, 乱数: %f\n", average, variance, N[0], val);
+  // N個の乱数を生成して出力
+  for (int i = 0; i < N; i++) {
+    std::cout << dist(method) << std::endl;
+  }
 
   return 0;
 }
