@@ -16,8 +16,8 @@ int main (int argc, char *argv[]) {
   std::cout << "a + b = " << C.transpose() << std::endl;
 
   // ベクトルaとbのベクトル積を計算する。
-  Eigen::VectorXd D = a * b.transpose();
-  std::cout << "a * b^T = " << D.transpose() << std::endl;
+  Eigen::MatrixXd D = a * b.transpose();
+  std::cout << "a * b^T = " << std::endl << D.transpose() << std::endl;
 
   // ベクトルaとbの内積を計算する。
   double E = a.dot(b);
