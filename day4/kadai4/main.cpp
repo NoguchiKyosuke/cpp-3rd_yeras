@@ -68,10 +68,10 @@ int main (int argc, char *argv[]) {
     noise_A(0, 0) += noise_x[i] * noise_x[i];
     noise_A(0, 1) += noise_x[i];
     noise_A(1, 0) += noise_x[i];
+    noise_A(1, 1) += 1;
     noise_b(0) += noise_x[i] * noise_y[i];
     noise_b(1) += noise_y[i];
   }
-  noise_A(1, 1) = 1;
 
   // 正規方程式を解く
   Eigen::VectorXd noise_ans(2);
