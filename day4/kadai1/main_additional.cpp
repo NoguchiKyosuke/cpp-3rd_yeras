@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <random>
+#include <fstream>
 
 int main (int argc, char *argv[]) {
   // 平均値, 分散、データ数をコマンドライン引数から取得
@@ -13,7 +14,7 @@ int main (int argc, char *argv[]) {
   // 標本分散の値を記述するファイル
   std::ofstream var_file("s_var.txt");
 
-  for (int n = 10; n < N; n = n*10) {
+  for (int n = 10; n <= N; n = n*10) {
     // シード値を取得し、乱数生成器を初期化
     std::uint32_t seed = std::atoi(argv[4]);
     std::mt19937 method(seed);
