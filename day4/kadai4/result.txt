@@ -1,5 +1,5 @@
-[k263354@ydev00 kadai4]$ g++ main.cpp `pkg-config --cflags eigen3` -o main
-[k263354@ydev00 kadai4]$ ./main
+$ g++ main.cpp `pkg-config --cflags eigen3` -o main
+$ ./main
 直線データにおける最小二乗法の結果
 傾き: 1.5
 切片: 2
