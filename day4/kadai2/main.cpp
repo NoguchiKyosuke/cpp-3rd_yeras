@@ -17,7 +17,7 @@ int main (int argc, char *argv[]) {
 
   // ベクトルaとbのベクトル積を計算する。
   Eigen::MatrixXd D = a * b.transpose();
-  std::cout << "a * b^T = " << std::endl << D.transpose() << std::endl;
+  std::cout << "a * b^T = " << std::endl << D << std::endl;
 
   // ベクトルaとbの内積を計算する。
   double E = a.dot(b);
@@ -31,9 +31,9 @@ int main (int argc, char *argv[]) {
     }
   }
 
-  // 行列Aとベクトルaの積を計算する。
-  Eigen::VectorXd F = A * a;
-  std::cout << "A * a = " << F.transpose() << std::endl;
+  // 行列Aとベクトルbの積を計算する。
+  Eigen::VectorXd F = A * b;
+  std::cout << "A * b = " << F.transpose() << std::endl;
 
   // 行列Bを定義する。
   Eigen::MatrixXd B(3, 3);
