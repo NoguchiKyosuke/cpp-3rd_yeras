@@ -6,7 +6,6 @@
 int main (int argc, char *argv[]) {
   // N, σの値を設定する。
   int N = std::atoi(argv[1]);
-  double sigma = 1.0;
 
   // xとyの値をベクトルとして定義する。
   Eigen::VectorXd x(N);
@@ -16,8 +15,9 @@ int main (int argc, char *argv[]) {
     y(i - 1) = (3.0 * x(i - 1) + 4.0) / 2.0;
   }
 
-  // 正規分布の平均値を0.0として定義する。
+  // 正規分布の平均値を0.0、標準偏差を1.0として定義する。
   double ave = 0.0;
+  double sigma = 1.0;
 
   // シード値を1として、乱数生成器を初期化
   std::uint32_t seed = 1;
