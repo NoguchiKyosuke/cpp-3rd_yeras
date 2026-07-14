@@ -1,7 +1,0 @@
-[k263354@ydev08 kadai1]$ g++ main.cpp -o main
-[k263354@ydev08 kadai1]$ ls
-main  main.cpp
-[k263354@ydev08 kadai1]$ ./main ../kadai1
-main.cpp
-main
-
