@@ -1,0 +1,9 @@
+[k263354@ydev00 kadai2]$ g++ -c -fPIC calc.cpp 
+[k263354@ydev00 kadai2]$ g++ -shared calc.o -o libcalc.so
+[k263354@ydev00 kadai2]$ g++ main.cpp -o main
+[k263354@ydev00 kadai2]$ ./main
+Usage: ./main <library_path>
+[k263354@ydev00 kadai2]$ ./main ./libcalc.so 
+add(10, 20) = 30
+sub(10, 20) = -10
+
