@@ -18,20 +18,24 @@ set_image (GtkImage* image, char* filename) {
 }
 
 static void
-on_activate (GApplication* app, gpointer* user_data) {
+on_startup (GApplication* app, gpointer* user_data) {
+    GtkBuilder* builder = gtk_builder_new_from_file ("menu.ui");
+    gtk_application_set_menubar(GTK_APPLICATION(app),
+                                 G_MENU_MODEL(gtk_builder_get_object(builder, "appmenu")));
+}
+
+static GtkWidget*
+image_window_new (GApplication* app) {
     GtkWidget* window = gtk_application_window_new (GTK_APPLICATION (app));
     gtk_window_set_title (GTK_WINDOW(window), "Image viewer");
     gtk_window_set_default_size (GTK_WINDOW(window), 400, 300);
-
-    GtkWidget* box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5);
-    gtk_window_set_child (GTK_WINDOW(window), box);
 
     GtkWidget* scrolled_window = gtk_scrolled_window_new ();
     gtk_widget_set_vexpand (scrolled_window, TRUE);
     gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolled_window),
                                     GTK_POLICY_AUTOMATIC,
                                     GTK_POLICY_AUTOMATIC);
-    gtk_box_append (GTK_BOX(box), scrolled_window);
+    gtk_window_set_child (GTK_WINDOW(window), scrolled_window);
 
     GtkWidget* image = gtk_image_new ();
     gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW(scrolled_window), image);
@@ -41,18 +45,47 @@ on_activate (GApplication* app, gpointer* user_data) {
     gtk_widget_set_valign (image, GTK_ALIGN_CENTER);
     set_image (GTK_IMAGE(image), "Parrots.png");
 
-    GtkWidget* button = gtk_button_new_with_label ("Quit");
-    g_signal_connect (G_OBJECT(button), "clicked", G_CALLBACK(on_quit), app);
-    gtk_box_append (GTK_BOX(box), button);
+    return window;
+}
+
+static void
+on_menu_open (GSimpleAction* action,
+              GVariant* parameter,
+              gpointer user_data) {
+    printf ("This function is not implemented yet.\n");
+}
+
+static void
+on_menu_quit (GSimpleAction* action,
+              GVariant* parameter,
+              gpointer user_data) {
+    g_application_quit (G_APPLICATION(user_data));
+}
+
+static GActionEntry app_entries[] = {
+    {"menu_open", on_menu_open, NULL, NULL, NULL},
+    {"menu_quit", on_menu_quit, NULL, NULL, NULL}
+};
+
+static void
+on_activate (GApplication* app, gpointer* user_data) {
+    GtkWidget* window = image_window_new (app);
+    gtk_application_window_set_show_menubar (GTK_APPLICATION_WINDOW(window),
+                                              TRUE);
+
+    GActionGroup* actions = (GActionGroup *) g_simple_action_group_new ();
+    g_action_map_add_action_entries (G_ACTION_MAP(actions),
+                                      app_entries, G_N_ELEMENTS(app_entries), app);
+    gtk_widget_insert_action_group (window, "app", actions);
 
     gtk_window_present (GTK_WINDOW(window));
 }
 
 int main (int argc, char *argv[]) {
     GtkApplication* app = gtk_application_new ("org.gtk.tutorial",
-                                               G_APPLICATION_FLAGS_NONE);
-    g_signal_connect (G_OBJECT(app),
-                      "activate", G_CALLBACK(on_activate), NULL);
+                                                G_APPLICATION_FLAGS_NONE);
+    g_signal_connect (G_OBJECT(app), "startup", G_CALLBACK(on_startup), NULL);
+    g_signal_connect (G_OBJECT(app), "activate", G_CALLBACK(on_activate), NULL);
     g_application_run (G_APPLICATION(app), argc, argv);
 
     return 0;
