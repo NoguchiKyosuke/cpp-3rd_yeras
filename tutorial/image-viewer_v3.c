@@ -26,19 +26,8 @@ on_activate (GApplication* app, gpointer* user_data) {
     GtkWidget* box = gtk_box_new (GTK_ORIENTATION_VERTICAL, 5);
     gtk_window_set_child (GTK_WINDOW(window), box);
 
-    GtkWidget* scrolled_window = gtk_scrolled_window_new ();
-    gtk_widget_set_vexpand (scrolled_window, TRUE);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolled_window),
-                                    GTK_POLICY_AUTOMATIC,
-                                    GTK_POLICY_AUTOMATIC);
-    gtk_box_append (GTK_BOX(box), scrolled_window);
-
     GtkWidget* image = gtk_image_new ();
-    gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW(scrolled_window), image);
-    gtk_widget_set_hexpand (image, FALSE);
-    gtk_widget_set_vexpand (image, FALSE);
-    gtk_widget_set_halign (image, GTK_ALIGN_CENTER);
-    gtk_widget_set_valign (image, GTK_ALIGN_CENTER);
+    gtk_box_append (GTK_BOX(box), image);
     set_image (GTK_IMAGE(image), "Parrots.png");
 
     GtkWidget* button = gtk_button_new_with_label ("Quit");
@@ -50,7 +39,8 @@ on_activate (GApplication* app, gpointer* user_data) {
 
 int main (int argc, char *argv[]) {
     GtkApplication* app = gtk_application_new ("org.gtk.tutorial",
-                                               G_APPLICATION_FLAGS_NONE);
+                                                G_APPLICATION_FLAGS_NONE);
+    char* filename = NULL;
     g_signal_connect (G_OBJECT(app),
                       "activate", G_CALLBACK(on_activate), NULL);
     g_application_run (G_APPLICATION(app), argc, argv);
