@@ -101,7 +101,7 @@ on_activate (GApplication* app, gpointer* user_data) {
 
 int main (int argc, char **argv) {
     GtkApplication* app = gtk_application_new ("org.gtk.tutorial",
-                                                G_APPLICATION_DEFAULT_FLAGS);
+                                                G_APPLICATION_FLAGS_NONE);
     g_signal_connect (G_OBJECT(app), "startup", G_CALLBACK(on_startup), NULL);
     g_signal_connect (G_OBJECT(app), "activate", G_CALLBACK(on_activate), NULL);
     g_application_run (G_APPLICATION(app), argc, argv);
