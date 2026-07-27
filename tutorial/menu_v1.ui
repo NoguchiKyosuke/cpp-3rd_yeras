@@ -7,10 +7,6 @@
                     <attribute name='label' translatable='yes'>_Open</attribute>
                     <attribute name='action'>app.menu_open</attribute>
                 </item>
-                <item>
-                    <attribute name='label' translatable='yes'>_Clear</attribute>
-                    <attribute name='action'>app.clear</attribute>
-                </item>
             </section>
             <section>
                 <item>

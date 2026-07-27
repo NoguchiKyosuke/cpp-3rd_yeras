@@ -73,18 +73,6 @@ on_menu_open (GSimpleAction* action,
                           NULL, open_image, user_data);
 }
 
-// クリアボタンのコールバック関数
-static void
-on_menu_clear (GSimpleAction* action,
-               GVariant* parameter,
-               gpointer user_data) {
-    // user_data に渡されている GtkApplication (app) から image を取得して消去
-    GtkImage* image = GTK_IMAGE (g_object_get_data (G_OBJECT (user_data), "image"));
-    if (image) {
-        gtk_image_clear (image);
-    }
-}
-
 static void
 on_menu_quit (GSimpleAction* action,
               GVariant* parameter,
@@ -93,9 +81,8 @@ on_menu_quit (GSimpleAction* action,
 }
 
 static GActionEntry app_entries[] = {
-    {"menu_open", on_menu_open,  NULL, NULL, NULL},
-    {"clear",     on_menu_clear, NULL, NULL, NULL}, // GActionEntry 配列に "clear" を追加
-    {"menu_quit", on_menu_quit,  NULL, NULL, NULL}
+    {"menu_open", on_menu_open, NULL, NULL, NULL},
+    {"menu_quit", on_menu_quit, NULL, NULL, NULL}
 };
 
 static void
