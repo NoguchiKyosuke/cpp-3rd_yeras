@@ -43,34 +43,16 @@ image_window_new (GApplication* app) {
     gtk_widget_set_vexpand (image, FALSE);
     gtk_widget_set_halign (image, GTK_ALIGN_CENTER);
     gtk_widget_set_valign (image, GTK_ALIGN_CENTER);
-    g_object_set_data (G_OBJECT(app), "image", image);
+    set_image (GTK_IMAGE(image), "Parrots.png");
 
     return window;
-}
-
-static void
-open_image (GObject* object,
-            GAsyncResult* result,
-            gpointer user_data) {
-    GFile* file = gtk_file_dialog_open_finish (GTK_FILE_DIALOG(object), result, NULL);
-    if (file) {
-        GtkImage* image = GTK_IMAGE(g_object_get_data (G_OBJECT(user_data), "image"));
-        char* filename = g_file_get_path (file);
-        set_image (image, filename);
-    }
 }
 
 static void
 on_menu_open (GSimpleAction* action,
               GVariant* parameter,
               gpointer user_data) {
-    GtkFileDialog* dialog = gtk_file_dialog_new ();
-    gtk_file_dialog_set_title (dialog, "Open an image");
-    GFile* dirname = g_file_new_for_path (g_path_get_dirname (__FILE__));
-    gtk_file_dialog_set_initial_folder (dialog, dirname);
-    gtk_file_dialog_open (dialog,
-                          gtk_application_get_active_window (GTK_APPLICATION(user_data)),
-                          NULL, open_image, user_data);
+    printf ("This function is not implemented yet.\n");
 }
 
 static void
@@ -99,9 +81,9 @@ on_activate (GApplication* app, gpointer* user_data) {
     gtk_window_present (GTK_WINDOW(window));
 }
 
-int main (int argc, char **argv) {
+int main (int argc, char *argv[]) {
     GtkApplication* app = gtk_application_new ("org.gtk.tutorial",
-                                                G_APPLICATION_DEFAULT_FLAGS);
+                                                G_APPLICATION_FLAGS_NONE);
     g_signal_connect (G_OBJECT(app), "startup", G_CALLBACK(on_startup), NULL);
     g_signal_connect (G_OBJECT(app), "activate", G_CALLBACK(on_activate), NULL);
     g_application_run (G_APPLICATION(app), argc, argv);
