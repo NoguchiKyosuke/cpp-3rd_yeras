@@ -12,6 +12,21 @@ set_image (GtkImage* image, char* filename) {
         GdkPixbuf* pixbuf = gdk_pixbuf_new_from_file (filename, NULL);
         int w = gdk_pixbuf_get_width (pixbuf);
         int h = gdk_pixbuf_get_height (pixbuf);
+
+        int rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+        int n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+        guchar* pixels = gdk_pixbuf_get_pixels (pixbuf);
+
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                guchar* p = pixels + y * rowstride + x * n_channels;
+                double mean = (p[0] + p[1] + p[2]) / 3.0;
+                p[0] = mean; // R
+                p[1] = mean; // G
+                p[2] = mean; // B
+            }
+        }
+
         gtk_image_set_from_pixbuf (image, pixbuf);
         gtk_widget_set_size_request (GTK_WIDGET(image), w, h);
     }
