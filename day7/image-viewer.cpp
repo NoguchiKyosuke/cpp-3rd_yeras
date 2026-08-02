@@ -17,13 +17,43 @@ set_image (GtkImage* image, char* filename) {
         int n_channels = gdk_pixbuf_get_n_channels (pixbuf);
         guchar* pixels = gdk_pixbuf_get_pixels (pixbuf);
 
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                guchar* p = pixels + y * rowstride + x * n_channels;
-                double mean = (p[0] + p[1] + p[2]) / 3.0;
-                p[0] = mean; // R
-                p[1] = mean; // G
-                p[2] = mean; // B
+        int start_x = std::max(0, 50);
+        int start_y = std::max(0, 50);
+        int end_x = std::min(w, 150);
+        int end_y = std::min(h, 150);
+        int block_size = 10;
+
+        for(int by = start_y; by < end_y; by += block_size) {
+            for(int bx = start_x; bx < end_x; bx += block_size) {
+                for(int y = 0; y < block_size && (by + y) < h; ++y) {// 実際のブロックの右端・下端（画像の端数処理用）
+                    int bw = std::min(block_size, end_x - bx);
+                    int bh = std::min(block_size, end_y - by);
+                    int count = bw * bh;
+
+                    // --- ステップA: ブロック内の合計色を計算 ---
+                    long sum_r = 0, sum_g = 0, sum_b = 0;
+                    for (int y = 0; y < bh; y++) {
+                        for (int x = 0; x < bw; x++) {
+                            guchar* p = pixels + (by + y) * rowstride + (bx + x) * n_channels;
+                            sum_r += p[0];
+                            sum_g += p[1];
+                            sum_b += p[2];
+                        }
+                    }
+                    guchar avg_r = sum_r / count;
+                    guchar avg_g = sum_g / count;
+                    guchar avg_b = sum_b / count;
+                
+                    // --- ステップB: ブロック内を平均色で塗りつぶす ---
+                    for (int y = 0; y < bh; y++) {
+                        for (int x = 0; x < bw; x++) {
+                            guchar* p = pixels + (by + y) * rowstride + (bx + x) * n_channels;
+                            p[0] = avg_r;
+                            p[1] = avg_g;
+                            p[2] = avg_b;
+                        }
+                    }
+                }
             }
         }
 
