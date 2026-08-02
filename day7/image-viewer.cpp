@@ -91,26 +91,22 @@ apply_mosaic (GtkImage* image, int start_x, int start_y, int end_x, int end_y) {
 
 // マウスドラッグを放したときに呼び出される関数
 static void
-on_drag_end (GtkGestureDrag* gesture, double offset_x, double offset_y, gpointer user_data) {
-    GtkImage* image = GTK_IMAGE (user_data);
-    double start_x, start_y;
+on_drag_end(GtkGestureDrag* gesture, double offset_x, double offset_y, gpointer user_data) {
+    // user_data から ImageEditor クラスを取り出す
+    ImageEditor* editor = static_cast<ImageEditor*>(user_data);
 
-    // 1. ドラッグ開始座標を取得
-    if (gtk_gesture_drag_get_start_point (gesture, &start_x, &start_y)) {
+    double start_x, start_y;
+    if (gtk_gesture_drag_get_start_point(gesture, &start_x, &start_y)) {
         double end_x = start_x + offset_x;
         double end_y = start_y + offset_y;
 
-        // 2. 右から左にドラッグした場合も考慮して座標の大小を並べ替える
         int x1 = static_cast<int>(std::min(start_x, end_x));
         int y1 = static_cast<int>(std::min(start_y, end_y));
         int x2 = static_cast<int>(std::max(start_x, end_x));
         int y2 = static_cast<int>(std::max(start_y, end_y));
 
-        std::cout << "選択した領域: (" << x1 << ", " << y1 << ") - (" 
-                  << x2 << ", " << y2 << ")" << std::endl;
-
-        // 3. モザイク関数を実行！
-        apply_mosaic (image, x1, y1, x2, y2);
+        // クラスのメソッドを呼ぶ！
+        editor->apply_mosaic(x1, y1, x2, y2);
     }
 }
 
