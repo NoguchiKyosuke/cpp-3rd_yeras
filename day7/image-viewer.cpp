@@ -1,12 +1,11 @@
 #include <gtk/gtk.h>
-#include "ViewerController.hpp" // 動的ライブラリが提供するコントローラー
+#include "ViewerController.hpp"
 
 int main(int argc, char** argv) {
-    // GTKアプリケーションの生成
     GtkApplication* app = gtk_application_new("org.gtk.tutorial",
                                                 G_APPLICATION_FLAGS_NONE);
 
-    // 動的ライブラリ (libviewer_controller.so) 内のハンドラを紐付け
+    // 実際の処理はすべて動的ライブラリ側のコールバックに任せる
     g_signal_connect(G_OBJECT(app), "startup",  G_CALLBACK(on_app_startup),  NULL);
     g_signal_connect(G_OBJECT(app), "activate", G_CALLBACK(on_app_activate), NULL);
 

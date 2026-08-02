@@ -1,18 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
     <menu id='appmenu'>
         <submenu>
             <attribute name='label' translatable='yes'>_File</attribute>
             <section>
+                <!-- 画像を開くメニュー -->
                 <item>
                     <attribute name='label' translatable='yes'>_Open</attribute>
                     <attribute name='action'>app.menu_open</attribute>
                 </item>
+                <!-- 画面のクリア -->
                 <item>
                     <attribute name='label' translatable='yes'>_Clear</attribute>
                     <attribute name='action'>app.clear</attribute>
                 </item>
             </section>
             <section>
+                <!-- 終了 -->
                 <item>
                     <attribute name='label' translatable='yes'>_Quit</attribute>
                     <attribute name='action'>app.menu_quit</attribute>

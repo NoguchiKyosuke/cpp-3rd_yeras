@@ -4,11 +4,12 @@
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 
+// 画像データと表示用ウィジェットをまとめて管理するクラス
 class ImageEditor {
 private:
     GtkImage* image_widget;
-    GdkPixbuf* current_pixbuf;
-    int block_size;
+    GdkPixbuf* current_pixbuf; // 編集中の画像データ
+    int block_size;            // モザイクの目の粗さ
 
 public:
     explicit ImageEditor(GtkImage* widget);
