@@ -31,86 +31,6 @@ on_startup (GApplication* app, gpointer* user_data) {
                                  G_MENU_MODEL(gtk_builder_get_object(builder, "appmenu")));
 }
 
-static GtkWidget*
-image_window_new (GApplication* app) {
-    GtkWidget* window = gtk_application_window_new (GTK_APPLICATION (app));
-    gtk_window_set_title (GTK_WINDOW(window), "Image viewer");
-    gtk_window_set_default_size (GTK_WINDOW(window), 400, 300);
-
-    GtkWidget* scrolled_window = gtk_scrolled_window_new ();
-    gtk_widget_set_vexpand (scrolled_window, TRUE);
-    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolled_window),
-                                    GTK_POLICY_AUTOMATIC,
-                                    GTK_POLICY_AUTOMATIC);
-    gtk_window_set_child (GTK_WINDOW(window), scrolled_window);
-
-    GtkWidget* image = gtk_image_new ();
-    gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW(scrolled_window), image);
-    gtk_widget_set_hexpand (image, FALSE);
-    gtk_widget_set_vexpand (image, FALSE);
-    gtk_widget_set_halign (image, GTK_ALIGN_CENTER);
-    gtk_widget_set_valign (image, GTK_ALIGN_CENTER);
-    g_object_set_data (G_OBJECT(app), "image", image);
-
-    GtkGesture* drag = gtk_gesture_drag_new ();
-    // ドラッグ終了(drag-end)シグナルと on_drag_end 関数を接続し、第4引数に image を渡す
-    g_signal_connect (drag, "drag-end", G_CALLBACK (on_drag_end), image);
-    // 画像ウィジェットにジェスチャーを追加する
-    gtk_widget_add_controller (image, GTK_EVENT_CONTROLLER (drag));
-
-    return window;
-}
-
-static void
-open_image (GObject* object,
-            GAsyncResult* result,
-            gpointer user_data) {
-    GFile* file = gtk_file_dialog_open_finish (GTK_FILE_DIALOG(object), result, NULL);
-    if (file) {
-        GtkImage* image = GTK_IMAGE(g_object_get_data (G_OBJECT(user_data), "image"));
-        char* filename = g_file_get_path (file);
-        set_image (image, filename);
-    }
-}
-
-static void
-on_menu_open (GSimpleAction* action,
-              GVariant* parameter,
-              gpointer user_data) {
-    GtkFileDialog* dialog = gtk_file_dialog_new ();
-    gtk_file_dialog_set_title (dialog, "Open an image");
-    GFile* dirname = g_file_new_for_path (g_path_get_dirname (__FILE__));
-    gtk_file_dialog_set_initial_folder (dialog, dirname);
-    gtk_file_dialog_open (dialog,
-                          gtk_application_get_active_window (GTK_APPLICATION(user_data)),
-                          NULL, open_image, user_data);
-}
-
-// クリアボタンのコールバック関数
-static void
-on_menu_clear (GSimpleAction* action,
-               GVariant* parameter,
-               gpointer user_data) {
-    // user_data に渡されている GtkApplication (app) から image を取得して消去
-    GtkImage* image = GTK_IMAGE (g_object_get_data (G_OBJECT (user_data), "image"));
-    if (image) {
-        gtk_image_clear (image);
-    }
-}
-
-static void
-on_menu_quit (GSimpleAction* action,
-              GVariant* parameter,
-              gpointer user_data) {
-    g_application_quit (G_APPLICATION(user_data));
-}
-
-static GActionEntry app_entries[] = {
-    {"menu_open", on_menu_open,  NULL, NULL, NULL},
-    {"clear",     on_menu_clear, NULL, NULL, NULL}, // GActionEntry 配列に "clear" を追加
-    {"menu_quit", on_menu_quit,  NULL, NULL, NULL}
-};
-
 // 指定範囲にモザイクをかける専用関数
 static void
 apply_mosaic (GtkImage* image, int start_x, int start_y, int end_x, int end_y) {
@@ -193,6 +113,86 @@ on_drag_end (GtkGestureDrag* gesture, double offset_x, double offset_y, gpointer
         apply_mosaic (image, x1, y1, x2, y2);
     }
 }
+
+static GtkWidget*
+image_window_new (GApplication* app) {
+    GtkWidget* window = gtk_application_window_new (GTK_APPLICATION (app));
+    gtk_window_set_title (GTK_WINDOW(window), "Image viewer");
+    gtk_window_set_default_size (GTK_WINDOW(window), 400, 300);
+
+    GtkWidget* scrolled_window = gtk_scrolled_window_new ();
+    gtk_widget_set_vexpand (scrolled_window, TRUE);
+    gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolled_window),
+                                    GTK_POLICY_AUTOMATIC,
+                                    GTK_POLICY_AUTOMATIC);
+    gtk_window_set_child (GTK_WINDOW(window), scrolled_window);
+
+    GtkWidget* image = gtk_image_new ();
+    gtk_scrolled_window_set_child (GTK_SCROLLED_WINDOW(scrolled_window), image);
+    gtk_widget_set_hexpand (image, FALSE);
+    gtk_widget_set_vexpand (image, FALSE);
+    gtk_widget_set_halign (image, GTK_ALIGN_CENTER);
+    gtk_widget_set_valign (image, GTK_ALIGN_CENTER);
+    g_object_set_data (G_OBJECT(app), "image", image);
+
+    GtkGesture* drag = gtk_gesture_drag_new ();
+    // ドラッグ終了(drag-end)シグナルと on_drag_end 関数を接続し、第4引数に image を渡す
+    g_signal_connect (drag, "drag-end", G_CALLBACK (on_drag_end), image);
+    // 画像ウィジェットにジェスチャーを追加する
+    gtk_widget_add_controller (image, GTK_EVENT_CONTROLLER (drag));
+
+    return window;
+}
+
+static void
+open_image (GObject* object,
+            GAsyncResult* result,
+            gpointer user_data) {
+    GFile* file = gtk_file_dialog_open_finish (GTK_FILE_DIALOG(object), result, NULL);
+    if (file) {
+        GtkImage* image = GTK_IMAGE(g_object_get_data (G_OBJECT(user_data), "image"));
+        char* filename = g_file_get_path (file);
+        set_image (image, filename);
+    }
+}
+
+static void
+on_menu_open (GSimpleAction* action,
+              GVariant* parameter,
+              gpointer user_data) {
+    GtkFileDialog* dialog = gtk_file_dialog_new ();
+    gtk_file_dialog_set_title (dialog, "Open an image");
+    GFile* dirname = g_file_new_for_path (g_path_get_dirname (__FILE__));
+    gtk_file_dialog_set_initial_folder (dialog, dirname);
+    gtk_file_dialog_open (dialog,
+                          gtk_application_get_active_window (GTK_APPLICATION(user_data)),
+                          NULL, open_image, user_data);
+}
+
+// クリアボタンのコールバック関数
+static void
+on_menu_clear (GSimpleAction* action,
+               GVariant* parameter,
+               gpointer user_data) {
+    // user_data に渡されている GtkApplication (app) から image を取得して消去
+    GtkImage* image = GTK_IMAGE (g_object_get_data (G_OBJECT (user_data), "image"));
+    if (image) {
+        gtk_image_clear (image);
+    }
+}
+
+static void
+on_menu_quit (GSimpleAction* action,
+              GVariant* parameter,
+              gpointer user_data) {
+    g_application_quit (G_APPLICATION(user_data));
+}
+
+static GActionEntry app_entries[] = {
+    {"menu_open", on_menu_open,  NULL, NULL, NULL},
+    {"clear",     on_menu_clear, NULL, NULL, NULL}, // GActionEntry 配列に "clear" を追加
+    {"menu_quit", on_menu_quit,  NULL, NULL, NULL}
+};
 
 static void
 on_activate (GApplication* app, gpointer* user_data) {
