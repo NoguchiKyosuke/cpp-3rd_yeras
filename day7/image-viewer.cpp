@@ -1,5 +1,7 @@
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
+#include <algorithm> // std::min, std::max 用
+#include <iostream>  // デバッグの printf や cout 用
 
 static void
 on_quit (GtkWidget* button, gpointer* user_data) {
@@ -16,46 +18,6 @@ set_image (GtkImage* image, char* filename) {
         int rowstride = gdk_pixbuf_get_rowstride (pixbuf);
         int n_channels = gdk_pixbuf_get_n_channels (pixbuf);
         guchar* pixels = gdk_pixbuf_get_pixels (pixbuf);
-
-        int start_x = std::max(0, 50);
-        int start_y = std::max(0, 50);
-        int end_x = std::min(w, 150);
-        int end_y = std::min(h, 150);
-        int block_size = 10;
-
-        for(int by = start_y; by < end_y; by += block_size) {
-            for(int bx = start_x; bx < end_x; bx += block_size) {
-                for(int y = 0; y < block_size && (by + y) < h; ++y) {// 実際のブロックの右端・下端（画像の端数処理用）
-                    int bw = std::min(block_size, end_x - bx);
-                    int bh = std::min(block_size, end_y - by);
-                    int count = bw * bh;
-
-                    // --- ステップA: ブロック内の合計色を計算 ---
-                    long sum_r = 0, sum_g = 0, sum_b = 0;
-                    for (int y = 0; y < bh; y++) {
-                        for (int x = 0; x < bw; x++) {
-                            guchar* p = pixels + (by + y) * rowstride + (bx + x) * n_channels;
-                            sum_r += p[0];
-                            sum_g += p[1];
-                            sum_b += p[2];
-                        }
-                    }
-                    guchar avg_r = sum_r / count;
-                    guchar avg_g = sum_g / count;
-                    guchar avg_b = sum_b / count;
-                
-                    // --- ステップB: ブロック内を平均色で塗りつぶす ---
-                    for (int y = 0; y < bh; y++) {
-                        for (int x = 0; x < bw; x++) {
-                            guchar* p = pixels + (by + y) * rowstride + (bx + x) * n_channels;
-                            p[0] = avg_r;
-                            p[1] = avg_g;
-                            p[2] = avg_b;
-                        }
-                    }
-                }
-            }
-        }
 
         gtk_image_set_from_pixbuf (image, pixbuf);
         gtk_widget_set_size_request (GTK_WIDGET(image), w, h);
@@ -89,6 +51,12 @@ image_window_new (GApplication* app) {
     gtk_widget_set_halign (image, GTK_ALIGN_CENTER);
     gtk_widget_set_valign (image, GTK_ALIGN_CENTER);
     g_object_set_data (G_OBJECT(app), "image", image);
+
+    GtkGesture* drag = gtk_gesture_drag_new ();
+    // ドラッグ終了(drag-end)シグナルと on_drag_end 関数を接続し、第4引数に image を渡す
+    g_signal_connect (drag, "drag-end", G_CALLBACK (on_drag_end), image);
+    // 画像ウィジェットにジェスチャーを追加する
+    gtk_widget_add_controller (image, GTK_EVENT_CONTROLLER (drag));
 
     return window;
 }
@@ -142,6 +110,89 @@ static GActionEntry app_entries[] = {
     {"clear",     on_menu_clear, NULL, NULL, NULL}, // GActionEntry 配列に "clear" を追加
     {"menu_quit", on_menu_quit,  NULL, NULL, NULL}
 };
+
+// 指定範囲にモザイクをかける専用関数
+static void
+apply_mosaic (GtkImage* image, int start_x, int start_y, int end_x, int end_y) {
+    // 1. image ウィジェットから GdkPixbuf を取り出す（GTK4のAPIを使用）
+    GdkPaintable* paintable = gtk_image_get_paintable (image);
+    if (!paintable || !GDK_IS_PIXBUF (paintable)) return;
+
+    GdkPixbuf* pixbuf = GDK_PIXBUF (paintable);
+    int w = gdk_pixbuf_get_width (pixbuf);
+    int h = gdk_pixbuf_get_height (pixbuf);
+    int rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+    int n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+    guchar* pixels = gdk_pixbuf_get_pixels (pixbuf);
+
+    // 画像の枠外にはみ出ないようクリッピング
+    start_x = std::max(0, start_x);
+    start_y = std::max(0, start_y);
+    end_x = std::min(w, end_x);
+    end_y = std::min(h, end_y);
+
+    int block_size = 10; // モザイクブロックの粗さ
+
+    for (int by = start_y; by < end_y; by += block_size) {
+        for (int bx = start_x; bx < end_x; bx += block_size) {
+            int bw = std::min(block_size, end_x - bx);
+            int bh = std::min(block_size, end_y - by);
+            int count = bw * bh;
+
+            // --- ステップA: ブロック内の合計色を計算 ---
+            long sum_r = 0, sum_g = 0, sum_b = 0;
+            for (int y = 0; y < bh; y++) {
+                for (int x = 0; x < bw; x++) {
+                    guchar* p = pixels + (by + y) * rowstride + (bx + x) * n_channels;
+                    sum_r += p[0];
+                    sum_g += p[1];
+                    sum_b += p[2];
+                }
+            }
+            guchar avg_r = sum_r / count;
+            guchar avg_g = sum_g / count;
+            guchar avg_b = sum_b / count;
+
+            // --- ステップB: ブロック内を平均色で塗りつぶす ---
+            for (int y = 0; y < bh; y++) {
+                for (int x = 0; x < bw; x++) {
+                    guchar* p = pixels + (by + y) * rowstride + (bx + x) * n_channels;
+                    p[0] = avg_r;
+                    p[1] = avg_g;
+                    p[2] = avg_b;
+                }
+            }
+        }
+    }
+
+    // 変更した pixbuf を image ウィジェットにセットし直して画面を書き換え
+    gtk_image_set_from_pixbuf (image, pixbuf);
+}
+
+// マウスドラッグを放したときに呼び出される関数
+static void
+on_drag_end (GtkGestureDrag* gesture, double offset_x, double offset_y, gpointer user_data) {
+    GtkImage* image = GTK_IMAGE (user_data);
+    double start_x, start_y;
+
+    // 1. ドラッグ開始座標を取得
+    if (gtk_gesture_drag_get_start_point (gesture, &start_x, &start_y)) {
+        double end_x = start_x + offset_x;
+        double end_y = start_y + offset_y;
+
+        // 2. 右から左にドラッグした場合も考慮して座標の大小を並べ替える
+        int x1 = static_cast<int>(std::min(start_x, end_x));
+        int y1 = static_cast<int>(std::min(start_y, end_y));
+        int x2 = static_cast<int>(std::max(start_x, end_x));
+        int y2 = static_cast<int>(std::max(start_y, end_y));
+
+        std::cout << "選択した領域: (" << x1 << ", " << y1 << ") - (" 
+                  << x2 << ", " << y2 << ")" << std::endl;
+
+        // 3. モザイク関数を実行！
+        apply_mosaic (image, x1, y1, x2, y2);
+    }
+}
 
 static void
 on_activate (GApplication* app, gpointer* user_data) {
