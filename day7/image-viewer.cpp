@@ -15,12 +15,10 @@ set_image (GtkImage* image, char* filename) {
         int w = gdk_pixbuf_get_width (pixbuf);
         int h = gdk_pixbuf_get_height (pixbuf);
 
-        int rowstride = gdk_pixbuf_get_rowstride (pixbuf);
-        int n_channels = gdk_pixbuf_get_n_channels (pixbuf);
-        guchar* pixels = gdk_pixbuf_get_pixels (pixbuf);
-
         gtk_image_set_from_pixbuf (image, pixbuf);
         gtk_widget_set_size_request (GTK_WIDGET(image), w, h);
+
+        g_object_set_data (G_OBJECT(image), "pixbuf", pixbuf);
     }
 }
 
@@ -34,11 +32,9 @@ on_startup (GApplication* app, gpointer* user_data) {
 // 指定範囲にモザイクをかける専用関数
 static void
 apply_mosaic (GtkImage* image, int start_x, int start_y, int end_x, int end_y) {
-    // 1. image ウィジェットから GdkPixbuf を取り出す（GTK4のAPIを使用）
-    GdkPaintable* paintable = gtk_image_get_paintable (image);
-    if (!paintable || !GDK_IS_PIXBUF (paintable)) return;
-
-    GdkPixbuf* pixbuf = GDK_PIXBUF (paintable);
+    GdkPixbuf* pixbuf = GDK_PIXBUF (g_object_get_data (G_OBJECT(image), "pixbuf"));
+    if (!pixbuf) return; // 画像が読み込まれていなければ終了
+    
     int w = gdk_pixbuf_get_width (pixbuf);
     int h = gdk_pixbuf_get_height (pixbuf);
     int rowstride = gdk_pixbuf_get_rowstride (pixbuf);
