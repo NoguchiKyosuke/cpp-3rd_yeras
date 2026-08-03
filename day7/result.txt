@@ -1,8 +1,8 @@
-[k263354@ydev02 day7]$ ls
+$ ls
 ImageEditor.cpp  Parrots.png           ViewerController.hpp  menu.ui
 ImageEditor.hpp  ViewerController.cpp  image-viewer.cpp      mosaic_plugin.cpp
-[k263354@ydev02 day7]$ g++ -O2 -shared -fPIC mosaic_plugin.cpp -o mosaic_plugin.so `pkg-config --cflags --libs gdk-pixbuf-2.0`
-[k263354@ydev02 day7]$ g++ -O2 -shared -fPIC ViewerController.cpp ImageEditor.cpp -o libviewer_controller.so `pkg-config --cflags --libs gtk4` -ldl
+$ g++ -O2 -shared -fPIC mosaic_plugin.cpp -o mosaic_plugin.so `pkg-config --cflags --libs gdk-pixbuf-2.0`
+$ g++ -O2 -shared -fPIC ViewerController.cpp ImageEditor.cpp -o libviewer_controller.so `pkg-config --cflags --libs gtk4` -ldl
 ImageEditor.cpp: メンバ関数 ‘void ImageEditor::load_file(const char*)’ 内:
 ImageEditor.cpp:31:30: 警告: ‘void gtk_image_set_from_pixbuf(GtkImage*, GdkPixbuf*)’ is deprecated: Use 'gtk_image_set_from_paintable' instead [-Wdeprecated-declarations]
    31 |     gtk_image_set_from_pixbuf(image_widget, current_pixbuf);
@@ -29,8 +29,8 @@ ImageEditor.cpp:68:30: 警告: ‘void gtk_image_set_from_pixbuf(GtkImage*, GdkP
 /usr/include/gtk-4.0/gtk/gtkimage.h:95:6: 備考: ここで宣言されています
    95 | void gtk_image_set_from_pixbuf    (GtkImage        *image,
       |      ^~~~~~~~~~~~~~~~~~~~~~~~~
-[k263354@ydev02 day7]$ g++ -O2 image-viewer.cpp -o image-viewer -L. -lviewer_controller `pkg-config --cflags --libs gtk4`
-[k263354@ydev02 day7]$ LD_LIBRARY_PATH=. ./image-viewer
+$ g++ -O2 image-viewer.cpp -o image-viewer -L. -lviewer_controller `pkg-config --cflags --libs gtk4`
+$ LD_LIBRARY_PATH=. ./image-viewer
 VMware: No 3D enabled (0, 成功です).
 libEGL warning: egl: failed to create dri2 screen
 VMware: No 3D enabled (0, 成功です).
